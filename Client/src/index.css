@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@plugin "@midudev/tailwind-animations";
+
+* {
+  box-sizing: border-box;
+  color-scheme: light dark;
+}
