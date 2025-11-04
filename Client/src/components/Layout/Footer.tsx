@@ -1,10 +1,10 @@
-import { Button } from "./Button";
-import { Logo } from "./Logo";
+import { Button } from "../UI/Button";
+import { Logo } from "../UI/Logo";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 export const Footer = () => {
   return (
-    <footer className="bg-slate-900 w-full mt-20 px-10">
+    <footer className="bg-slate-900 w-full mt-16 px-10">
       <div className="max-w-6xl w-full mx-auto flex flex-col items-center justify-center pt-10">
         <article className="flex items-center justify-between w-full">
           <div className="flex items-center gap-4">

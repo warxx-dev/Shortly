@@ -5,7 +5,7 @@ export interface scissorsSvgProps {
 
 export type Link = {
   originalLink: string;
-  shortLink: string;
+  code: string;
 };
 
 export interface inputProps {
@@ -16,6 +16,7 @@ export interface inputProps {
   type?: string;
   icon?: React.ReactNode;
   className?: string;
+  value?: string;
 }
 
 export interface buttonProps {
@@ -27,9 +28,4 @@ export interface buttonProps {
   type?: "button" | "submit" | "reset" | undefined;
   gradient?: boolean;
   hiddenText?: boolean;
-}
-
-export interface LogInModalProps {
-  showModal?: boolean;
-  setShowModal: (value: boolean) => void;
 }

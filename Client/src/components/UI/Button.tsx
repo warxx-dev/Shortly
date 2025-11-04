@@ -1,4 +1,4 @@
-import type { buttonProps } from "../types";
+import type { buttonProps } from "../../types";
 
 export const Button = ({
   border,
@@ -11,7 +11,9 @@ export const Button = ({
 }: buttonProps) => {
   return (
     <button
-      className={`group flex items-center font-bold justify-center gap-2.5 max-h-10 ${
+      className={`group flex items-center font-bold justify-center ${
+        icon && text ? "gap-2.5" : ""
+      } max-h-10 ${
         gradient
           ? "bg-gradient-to-br from-emerald-500 to-teal-500  hover:scale-105 hover:shadow-emerald-500/50 shadow-lg"
           : "bg-slate-800 hover:bg-slate-700"

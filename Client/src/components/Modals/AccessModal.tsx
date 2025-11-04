@@ -1,23 +1,26 @@
-import type { LogInModalProps } from "../types";
-import { Button } from "./Button";
-import { Input } from "./Input";
+import { Button } from "../UI/Button";
+import { Input } from "../UI/Input";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { XIcon } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
-import { useState, useEffect } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useState, useEffect, useContext } from "react";
+import { ModalContext } from "../../context/modalContext";
+import { motion } from "framer-motion";
+import { createPortal } from "react-dom";
 
-export const LogInModal = ({ showModal, setShowModal }: LogInModalProps) => {
-  useEffect(() => {
-    if (showModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+export const LogInModal = () => {
+  const { loginModal, setLoginModal } = useContext(ModalContext);
+  // useEffect(() => {
+  //   if (loginModal) {
+  //     document.body.style.overflow = "hidden";
+  //   } else {
+  //     document.body.style.overflow = "unset";
+  //   }
 
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [showModal]);
+  //   return () => {
+  //     document.body.style.overflow = "unset";
+  //   };
+  // }, [loginModal]);
 
   const { login, googleLogin, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
@@ -51,27 +54,27 @@ export const LogInModal = ({ showModal, setShowModal }: LogInModalProps) => {
     console.log(token);
     googleLogin(token);
 
-    setShowModal(false);
+    setLoginModal(false);
   };
 
   const handleGoogleError = () => {
     console.error("Google Login Failed");
   };
 
-  return (
-    <div
+  return createPortal(
+    <motion.div
+      initial={{ y: "-20px", opacity: 0 }}
+      animate={{ y: "0", opacity: 1 }}
+      exit={{ y: "-20px", opacity: 0 }}
+      transition={{ duration: 0.15 }}
       onClick={(e) => e.stopPropagation()}
-      className={`w-full max-w-xs flex-col gap-4 p-6 border border-gray-600 rounded-lg bg-slate-700/50 absolute top-0 sm:top-24 right-0 z-10 sm:max-w-md  ${
-        showModal
-          ? "visible animate-fade-in-down"
-          : "invisible animate-fade-out-up"
-      } animate-duration-150`}
+      className={`w-full max-w-xs flex-col gap-4 p-6 border border-gray-600 rounded-lg bg-slate-700/50 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 sm:max-w-md `}
     >
       <div className="flex justify-between">
         <h2 className="text-2xl">LogIn</h2>
         <button
           className="hover:cursor-pointer hover:bg-gray-900 rounded-lg p-1"
-          onClick={() => setShowModal(false)}
+          onClick={() => setLoginModal(false)}
         >
           <XIcon />
         </button>
@@ -168,6 +171,7 @@ export const LogInModal = ({ showModal, setShowModal }: LogInModalProps) => {
           shape="rectangular"
         />
       </div>
-    </div>
+    </motion.div>,
+    document.body
   );
 };

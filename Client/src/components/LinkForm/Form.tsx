@@ -1,12 +1,13 @@
 import { useContext, useEffect } from "react";
-import { AlertContext } from "../context/alertContext";
-import { Input } from "./Input";
-import { Button } from "./Button";
-import { LinkContext } from "../context/linkContext";
+import { AlertContext } from "../../context/alertContext";
+import { Input } from "../UI/Input";
+import { Button } from "../UI/Button";
+import { LinkContext } from "../../context/linkContext";
 import { LinkIcon, ScissorsIcon } from "lucide-react";
 import { FormWarning } from "./FormWarning";
+import { motion } from "framer-motion";
 
-export const Form = () => {
+export const Form = ({ showWarning }: { showWarning: boolean }) => {
   const { showAlert, setShowAlert } = useContext(AlertContext);
   const { links, setLinks } = useContext(LinkContext);
 
@@ -37,7 +38,7 @@ export const Form = () => {
         setShowAlert(true);
         setLinks([
           ...links,
-          { originalLink, shortLink: `shortly.com/${customName}` },
+          { originalLink, code: `shortly.com/${customName}` },
         ]);
         form.reset();
       }
@@ -47,7 +48,11 @@ export const Form = () => {
   };
 
   return (
-    <form
+    <motion.form
+      initial={{ opacity: 0, transform: "translateY(-20px)" }}
+      animate={{ opacity: 1, transform: "translateY(0px)" }}
+      exit={{ opacity: 0, transform: "translateY(20px)" }}
+      transition={{ duration: 0.3 }}
       onSubmit={handleSubmit}
       className="bg-gray-700/30 w-full max-w-2xl flex flex-col items-start p-8 rounded-2xl gap-2.5"
     >
@@ -55,7 +60,7 @@ export const Form = () => {
         <LinkIcon className="text-emerald-400" />
         <h2 className="text-2xl font-bold">Shorten URL</h2>
       </div>
-      <FormWarning />
+      {showWarning && <FormWarning />}
 
       <Input
         required
@@ -79,6 +84,6 @@ export const Form = () => {
         icon={<ScissorsIcon size={16}></ScissorsIcon>}
         className="w-full"
       />
-    </form>
+    </motion.form>
   );
 };

@@ -1,7 +1,7 @@
 import { Link2, MousePointerClick, TableConfig } from "lucide-react";
 import { Card } from "./Card";
-import { Button } from "./Button";
-import { LoginModalContext } from "../context/loginModalContext";
+import { Button } from "../UI/Button";
+import { ModalContext } from "../../context/modalContext";
 import { useContext } from "react";
 
 const elements = [
@@ -24,9 +24,9 @@ const elements = [
 
 export const HeroSection = () => {
   const handleClick = () => {
-    setShowModal(true);
+    setLoginModal(true);
   };
-  const { setShowModal } = useContext(LoginModalContext);
+  const { setLoginModal } = useContext(ModalContext);
 
   return (
     <div className="flex flex-col w-full max-w-6xl items-center justify-center gap-3 p-12">

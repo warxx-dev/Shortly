@@ -8,11 +8,12 @@ export class AppController {
   @Redirect('http://localhost:5173', 301)
   getApp(): void {}
 
-  @Get('/:code')
+  @Get('r/:code')
   @Redirect()
   async redirectToOriginalLink(@Param('code') code: string) {
-    console.log(code);
+    console.log('Redirecting code:', code);
     const link = await this.linkService.getLinkByCode(code);
+    console.log('Found link:', link);
     if (link) {
       return { url: link.originalLink, statusCode: 302 };
     }

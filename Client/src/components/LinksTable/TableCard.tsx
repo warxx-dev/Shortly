@@ -1,0 +1,106 @@
+import { BarChart3, Clock, Copy, Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { EditModal } from "../Modals/EditModal";
+import { ModalBackground } from "../Modals/ModalBackground";
+import { AnimatePresence } from "framer-motion";
+import { DeleteModal } from "../Modals/DeleteModal";
+
+interface TableCardProps {
+  originalLink: string;
+  shortLink: string;
+}
+
+export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
+  const [editModal, setEditModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(shortLink);
+  };
+
+  const handleEditClick = () => {
+    setEditModal(true);
+  };
+  const handleDeleteClick = () => {
+    setDeleteModal(true);
+  };
+
+  return (
+    <div>
+      <article className="flex flex-col justify-between rounded-xl border border-gray-700 hover:border-emerald-700 items-center gap-2 bg-gradient-to-br from-slate-800 to-slate-900 p-4 max-w ">
+        <section className="flex justify-between w-full">
+          <div className="flex gap-2">
+            <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full ">
+              <a
+                href={shortLink}
+                rel="noopener noreferrer"
+                title={shortLink}
+                className="text-emerald-400 font-mono text-sm font-semibold"
+                target="_blank"
+              >
+                {shortLink}
+              </a>
+            </div>
+            <button
+              onClick={handleCopy}
+              className="group p-2 hover:bg-slate-700 rounded-lg transition-colors hover:cursor-pointer"
+            >
+              <Copy
+                className="group-hover:text-white text-gray-400"
+                size={16}
+              />
+            </button>
+          </div>
+          <nav className="flex gap-2" aria-label="Acciones del enlace">
+            <button
+              onClick={handleEditClick}
+              className="group p-2 hover:bg-slate-700 rounded-lg transition-colors hover:cursor-pointer"
+            >
+              <Edit
+                className="group-hover:text-emerald-400 text-gray-400"
+                size={16}
+              />
+            </button>
+            <button
+              onClick={handleDeleteClick}
+              className="group p-2 hover:bg-red-500/10 rounded-lg transition-colors hover:cursor-pointer"
+            >
+              <Trash2
+                className="group-hover:text-red-400 text-gray-400"
+                size={16}
+              />
+            </button>
+          </nav>
+        </section>
+        <div className="flex flex-col text-gray-300  items-start self-start">
+          <p className="truncate max-w-96" title={originalLink}>
+            {originalLink}
+          </p>
+        </div>
+        <section className="flex items-center gap-4 text-xs text-slate-400 self-start">
+          <div className="flex items-center gap-1">
+            <BarChart3 size={12} />
+            <span>0 clicks</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock size={12} />
+            <span>fecha</span>
+          </div>
+        </section>
+      </article>
+      <AnimatePresence>
+        {editModal && (
+          <>
+            <ModalBackground onClick={() => setEditModal(false)} />
+            <EditModal shortCode={shortLink} originalLink={originalLink} />
+          </>
+        )}
+        {deleteModal && (
+          <>
+            <ModalBackground onClick={() => setDeleteModal(false)} />
+            <DeleteModal setDeleteModal={setDeleteModal} />
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};

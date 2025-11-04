@@ -13,9 +13,13 @@ export class LinkService {
   ) {}
 
   async getLinks(): Promise<Link[]> {
-    return await this.linkRepository.find();
+    try {
+      return await this.linkRepository.find();
+    } catch (error) {
+      console.error('Error fetching links:', error);
+      throw error;
+    }
   }
-
   async getLink(id: number): Promise<Link> {
     const link = await this.linkRepository.findOne({ where: { id } });
 
@@ -26,28 +30,36 @@ export class LinkService {
   }
 
   async getLinkByCode(code: string): Promise<Link | null> {
+    console.log(code);
     const link = await this.linkRepository.findOne({ where: { code } });
-
+    console.log(!link);
     if (!link) {
-      throw new NotFoundException('Link not found');
+      return null;
     }
     return link;
   }
 
   async createLink(link: CreateLinkDto) {
-    const { originalLink, code: customName } = link;
+    let { originalLink } = link;
+    const { code } = link;
+
+    if (!originalLink.startsWith('http'))
+      originalLink = 'https://' + originalLink;
+
     let generatedCode: string;
-    if (!customName) {
+    if (code.length == 0) {
       generatedCode = generateCode(10);
       let existingLink = await this.getLinkByCode(generatedCode);
+      console.log('Existing Link', existingLink);
       while (existingLink) {
         generatedCode = generateCode(10);
         existingLink = await this.getLinkByCode(generatedCode);
       }
-      return this.linkRepository.save({ originalLink, generatedCode });
+      console.log('return ', { originalLink, code: generatedCode });
+      return this.linkRepository.save({ originalLink, code: generatedCode });
     }
 
-    return this.linkRepository.save({ originalLink, code: customName });
+    return this.linkRepository.save({ originalLink, code });
   }
 
   async updateLink(

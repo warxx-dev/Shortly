@@ -17,31 +17,24 @@ export class LinkController {
   constructor(private readonly linkService: LinkService) {}
 
   @Get()
-  find() {
+  async find(): Promise<Link[]> {
     return this.linkService.getLinks();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: number) {
-    console.log('Finding link by id:', id);
-    return this.linkService.getLink(id);
+  @Get('code/:code')
+  async findByCode(@Param('code') code: string): Promise<Link | null> {
+    return this.linkService.getLinkByCode(code);
   }
 
-  @Get('code/:code')
-  findByCode(@Param('code') code: string): Promise<Link | null> {
-    console.log('Finding link by code:', code);
-    return this.linkService.getLinkByCode(code);
+  @Get(':id')
+  async findOne(@Param('id') id: number): Promise<Link> {
+    return this.linkService.getLink(id);
   }
 
   @Post()
   async create(@Body() body: CreateLinkDto): Promise<Link> {
     const { originalLink, code } = body;
-    console.log(
-      'Creating link with originalLink:',
-      originalLink,
-      'and code:',
-      code,
-    );
+    console.log(body);
     return this.linkService.createLink({ originalLink, code });
   }
 

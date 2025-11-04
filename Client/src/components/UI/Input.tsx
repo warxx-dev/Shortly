@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { inputProps } from "../types";
+import type { inputProps } from "../../types";
 
 export const Input = ({
   text,
@@ -8,6 +8,7 @@ export const Input = ({
   placeholder,
   required,
   icon,
+  value,
 }: inputProps) => {
   const [validPassword, setValidPassword] = useState<boolean>(false);
   const [touched, setTouched] = useState<boolean>(false);
@@ -22,11 +23,12 @@ export const Input = ({
 
   return (
     <>
-      <label className="mt-1 font-medium flex items-center gap-2">
+      <label className="mt-1 font-medium flex text-slate-300 items-center gap-2">
         {icon}
         {text}
       </label>
       <input
+        value={value}
         autoComplete={type === "password" ? "current-password" : "off"}
         onChange={type === "password" ? handlePasswordChange : undefined}
         type={type || "text"}

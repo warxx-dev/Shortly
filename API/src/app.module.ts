@@ -1,12 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { LinkModule } from './modules/link/link.module';
 import { UserModule } from './modules/user/user.module';
-// import { LoggerMiddleware } from './logger/logger.middleware';
-// import { LinkController } from './modules/link/link.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { AppController } from './app.controller';
+import { RedirectMiddleware } from './middleware/redirect.middleware';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,7 +29,7 @@ import { AppController } from './app.controller';
   controllers: [AppController],
 })
 export class AppModule {
-  // configure(consumer: MiddlewareConsumer) {
-  //   consumer.apply(LoggerMiddleware).forRoutes(LinkController);
-  // }
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RedirectMiddleware).forRoutes('*');
+  }
 }
