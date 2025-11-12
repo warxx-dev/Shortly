@@ -5,7 +5,7 @@ import { XIcon } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useState, useEffect, useContext } from "react";
 import { ModalContext } from "../../context/modalContext";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
 
 export const LogInModal = () => {
@@ -22,7 +22,7 @@ export const LogInModal = () => {
   //   };
   // }, [loginModal]);
 
-  const { login, googleLogin, register } = useAuth();
+  const { login, googleLogin, register, user } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
 
   const handleSubmitLogIn = (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,11 +47,8 @@ export const LogInModal = () => {
   };
 
   const handleGoogleSuccess = (credentialResponse: CredentialResponse) => {
-    console.log("Google Login Success:", credentialResponse);
-
     const token = credentialResponse.credential;
 
-    console.log(token);
     googleLogin(token);
 
     setLoginModal(false);
@@ -63,10 +60,10 @@ export const LogInModal = () => {
 
   return createPortal(
     <motion.div
-      initial={{ y: "-20px", opacity: 0 }}
-      animate={{ y: "0", opacity: 1 }}
-      exit={{ y: "-20px", opacity: 0 }}
-      transition={{ duration: 0.15 }}
+      initial={{ opacity: 0, y: "-20px" }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: "-20px" }}
+      transition={{ duration: 0.25 }}
       onClick={(e) => e.stopPropagation()}
       className={`w-full max-w-xs flex-col gap-4 p-6 border border-gray-600 rounded-lg bg-slate-700/50 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 sm:max-w-md `}
     >
@@ -83,27 +80,24 @@ export const LogInModal = () => {
         onSubmit={isLogin ? handleSubmitLogIn : handleSubmitSignIn}
         className="flex flex-col gap-1"
       >
-        <div
-          className={`overflow-hidden transition-[max-height] duration-250 ease-in-out ${
-            isLogin ? "max-h-0" : "max-h-[480px]"
-          }`}
-        >
-          <div
-            className={`flex flex-col gap-1 transform transition-all duration-400 ease-out ${
-              isLogin
-                ? "opacity-0 -translate-y-2 pointer-events-none"
-                : "opacity-100 translate-y-0"
-            }`}
-            aria-hidden={isLogin}
-          >
-            <Input
-              placeholder="Jhon Doe"
-              text="Full Name"
-              name="fullName"
-              type="text"
-            />
-          </div>
-        </div>
+        <AnimatePresence mode="wait">
+          {!isLogin && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="flex flex-col gap-1 overflow-hidden"
+            >
+              <Input
+                placeholder="Jhon Doe"
+                text="Full Name"
+                name="fullName"
+                type="text"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Input
           placeholder="example@email.com"
           text="Email"
@@ -116,28 +110,24 @@ export const LogInModal = () => {
           name="password"
           type="password"
         />
-
-        <div
-          className={`overflow-hidden transition-[max-height] duration-250 ease-in-out ${
-            isLogin ? "max-h-0" : "max-h-[480px]"
-          }`}
-        >
-          <div
-            className={`flex flex-col gap-1 transform transition-all duration-400 ease-out ${
-              isLogin
-                ? "opacity-0 -translate-y-2 pointer-events-none"
-                : "opacity-100 translate-y-0"
-            }`}
-            aria-hidden={isLogin}
-          >
-            <Input
-              placeholder="••••••••"
-              text="Repeat password"
-              name="password"
-              type="password"
-            />
-          </div>
-        </div>
+        <AnimatePresence mode="wait">
+          {!isLogin && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="flex flex-col gap-1 overflow-hidden"
+            >
+              <Input
+                placeholder="••••••••"
+                text="Repeat password"
+                name="password"
+                type="password"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <a className="hover:text-emerald-400">Forgot your password?</a>
         <Button

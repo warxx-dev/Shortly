@@ -34,11 +34,7 @@ export const ProtectedPage = () => {
       </nav>
       <div className="mt-8 flex justify-center w-full ">
         <AnimatePresence>
-          {navItem === NAV_ITEMS.NEW_LINK ? (
-            <Form showWarning={false} />
-          ) : (
-            <LinksTable />
-          )}
+          {navItem === NAV_ITEMS.NEW_LINK ? <Form /> : <LinksTable />}
         </AnimatePresence>
       </div>
     </section>

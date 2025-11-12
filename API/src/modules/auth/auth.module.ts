@@ -5,16 +5,28 @@ import { UserModule } from '../user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import googleConfig from './config/google.config';
+import jwtConfig from './config/jwt.config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     UserModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'secret-key',
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '7d' },
+      }),
     }),
+    ConfigModule.forFeature(googleConfig),
+    ConfigModule.forFeature(jwtConfig),
   ],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy, LocalStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

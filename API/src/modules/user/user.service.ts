@@ -27,34 +27,34 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
+  async findOne(email: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with email ${email} not found`);
     }
 
     return user;
   }
 
   async update(
-    id: number,
+    email: string,
     updateUserDto: UpdateUserDto,
   ): Promise<UpdateResult> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with email ${email} not found`);
     }
 
-    return await this.userRepository.update(id, updateUserDto);
+    return await this.userRepository.update(email, updateUserDto);
   }
 
-  async remove(id: number): Promise<DeleteResult> {
-    const user = await this.userRepository.findOne({ where: { id } });
+  async remove(email: string): Promise<DeleteResult> {
+    const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with email ${email} not found`);
     }
 
-    return await this.userRepository.delete(id);
+    return await this.userRepository.delete(email);
   }
 }

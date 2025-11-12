@@ -1,12 +1,14 @@
 import { TableCard } from "./TableCard";
 import { LinkContext } from "../../context/linkContext";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
-import empty_table from "../../../public/empty_table.webp";
+import empty_table from "./assets/empty_table.webp";
+import { Spinner } from "flowbite-react";
 
 export const LinksTable = () => {
   const { links, setLinks } = useContext(LinkContext);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetch("http://localhost:3000/link")
@@ -18,6 +20,7 @@ export const LinksTable = () => {
       })
       .then((data) => {
         setLinks(data);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching links:", error);
@@ -33,21 +36,30 @@ export const LinksTable = () => {
       className="text-center flex flex-col justify-center rounded-lg p-4 max-w-2xl w-full"
     >
       {links.length != 0 ? (
-        <>
-          <h2 className="text-2xl font-semibold pb-2 flex items-center gap-2">
-            <BarChart3 className="text-emerald-400" />
-            Manage your Links
-          </h2>
-          <section className="rounded-lg flex gap-2 flex-col">
-            {links.map((link, index) => (
-              <TableCard
-                key={index}
-                originalLink={link.originalLink}
-                shortLink={`http://localhost:3000/${link.code}`}
-              />
-            ))}
-          </section>
-        </>
+        isLoading ? (
+          //TODO : fix animation spinner
+          <Spinner
+            size="xl"
+            aria-label="Loading links..."
+            className="mx-auto mt-10 animate-spin"
+          />
+        ) : (
+          <>
+            <h2 className="text-2xl font-semibold pb-2 flex items-center gap-2">
+              <BarChart3 className="text-emerald-400" />
+              Manage your Links
+            </h2>
+            <section className="rounded-lg flex gap-2 flex-col">
+              {links.map((link, index) => (
+                <TableCard
+                  key={index}
+                  originalLink={link.originalLink}
+                  shortLink={`http://localhost:3000/${link.code}`}
+                />
+              ))}
+            </section>
+          </>
+        )
       ) : (
         <img src={empty_table} width={400} />
       )}

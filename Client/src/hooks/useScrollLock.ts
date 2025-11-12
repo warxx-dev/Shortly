@@ -1,12 +1,10 @@
 import { useEffect } from "react";
 
 export const useScrollLock = (lock: boolean) => {
-  console.log("useScrollLock called with lock =", lock);
   useEffect(() => {
     if (lock) {
       // Guardamos el scroll actual
       const scrollY = window.scrollY;
-      console.log("Locking scroll at position:", scrollY);
 
       // Añadimos padding-right para compensar la desaparición del scrollbar y evitar el salto
       const scrollbarWidth =

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { AlertContext } from "../../context/alertContext";
 import { Input } from "../UI/Input";
 import { Button } from "../UI/Button";
@@ -6,16 +6,13 @@ import { LinkContext } from "../../context/linkContext";
 import { LinkIcon, ScissorsIcon } from "lucide-react";
 import { FormWarning } from "./FormWarning";
 import { motion } from "framer-motion";
+import { useAuth } from "../../hooks/useAuth";
 
-export const Form = ({ showWarning }: { showWarning: boolean }) => {
-  const { showAlert, setShowAlert } = useContext(AlertContext);
+export const Form = () => {
+  const { setShowAlert } = useContext(AlertContext);
   const { links, setLinks } = useContext(LinkContext);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    if (showAlert) {
-      console.log("Estado actualizado:", showAlert);
-    }
-  }, [showAlert]);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -60,7 +57,7 @@ export const Form = ({ showWarning }: { showWarning: boolean }) => {
         <LinkIcon className="text-emerald-400" />
         <h2 className="text-2xl font-bold">Shorten URL</h2>
       </div>
-      {showWarning && <FormWarning />}
+      {!user && <FormWarning />}
 
       <Input
         required

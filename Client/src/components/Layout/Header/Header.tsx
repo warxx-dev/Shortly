@@ -12,7 +12,6 @@ import { ModalBackground } from "../../Modals/ModalBackground";
 export const Header = () => {
   const { user } = useAuth();
   const { loginModal, setLoginModal } = useContext(ModalContext);
-  console.log("User:", user);
   return (
     <header className="sticky flex justify-center w-full border-b border-gray-800 top-0 p-6 bg-slate-900 z-10">
       <div className="max-w-6xl w-full flex relative justify-between items-center">

@@ -2,8 +2,9 @@ import { BarChart3, Clock, Copy, Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { EditModal } from "../Modals/EditModal";
 import { ModalBackground } from "../Modals/ModalBackground";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { DeleteModal } from "../Modals/DeleteModal";
+import { useScrollLock } from "../../hooks/useScrollLock";
 
 interface TableCardProps {
   originalLink: string;
@@ -13,8 +14,11 @@ interface TableCardProps {
 export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [copied, setCopied] = useState(false);
   const handleCopy = () => {
     navigator.clipboard.writeText(shortLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1000);
   };
 
   const handleEditClick = () => {
@@ -23,6 +27,8 @@ export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
   const handleDeleteClick = () => {
     setDeleteModal(true);
   };
+
+  useScrollLock(editModal || deleteModal);
 
   return (
     <div>
@@ -49,6 +55,18 @@ export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
                 size={16}
               />
             </button>
+            <AnimatePresence>
+              {copied && (
+                <motion.span
+                  initial={{ opacity: 0, x: "-20px" }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: "-20px" }}
+                  className="ml-2 text-xs text-emerald-400"
+                >
+                  Copied!
+                </motion.span>
+              )}
+            </AnimatePresence>
           </div>
           <nav className="flex gap-2" aria-label="Acciones del enlace">
             <button

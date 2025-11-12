@@ -10,6 +10,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   // Bloquear scroll cuando cualquier modal esté abierto
   const isAnyModalOpen = editModal || loginModal || deleteModal;
   useScrollLock(isAnyModalOpen);
+  console.log("ModalProvider render, isAnyModalOpen =", isAnyModalOpen);
   return (
     <ModalContext.Provider
       value={{

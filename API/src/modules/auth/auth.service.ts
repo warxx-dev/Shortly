@@ -9,6 +9,8 @@ import { LoginDto } from './dto/loginDto';
 import { JwtService } from '@nestjs/jwt';
 import { GoogleLoginDto } from './dto/googleLoginDto';
 import { OAuth2Client } from 'google-auth-library';
+import { AuthUser } from './interfaces/user.interface';
+import { CreateUserDto } from '../user/dto';
 
 @Injectable()
 export class AuthService {
@@ -22,75 +24,105 @@ export class AuthService {
     this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
   }
 
-  async register(resgisterData: RegisterDto) {
-    const { email, password, name } = resgisterData;
-
-    const existingUser = await this.userRepository.findOne({
-      where: { email },
-    });
-
-    if (existingUser) {
-      throw new Error('Email already exists');
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<Partial<User> | null> {
+    const user = await this.userService.findOne(email);
+    if (user && user.password === pass) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...result } = user;
+      return result;
     }
+    return null;
+  }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await this.userService.create({
-      email: email,
-      password: hashedPassword,
-      name: name,
-    });
-
-    const payload = {
-      sub: user.id,
-      email: user.email,
-    };
+  login(user: AuthUser) {
+    const payload = { sub: user.email };
     return {
       access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.picture,
-      },
     };
   }
 
-  async login(loginData: LoginDto) {
-    const { email, password } = loginData;
+  // async validateGoogleUser(googleUser: CreateUserDto): Promise<User> {
+  //   const user = await this.userService.findOne(googleUser.email);
+  //   if (user) return user;
+  //   return await this.userService.create(googleUser);
+  // }
 
-    const user = await this.userRepository.findOne({ where: { email } });
+  // async register(resgisterData: RegisterDto) {
+  //   const { email, password, name } = resgisterData;
 
-    if (!user) {
-      throw new Error('User not found');
-    }
+  //   const existingUser = await this.userRepository.findOne({
+  //     where: { email },
+  //   });
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+  //   if (existingUser) {
+  //     throw new Error('Email already exists');
+  //   }
 
-    if (!isPasswordValid) {
-      throw new Error('Invalid password');
-    }
-    const payload = {
-      sub: user.id,
-      email: user.email,
-    };
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.picture,
-      },
-    };
-  }
+  //   const hashedPassword = await bcrypt.hash(password, 10);
+
+  //   const user = await this.userService.create({
+  //     email: email,
+  //     password: hashedPassword,
+  //     name: name,
+  //   });
+
+  //   const payload = {
+  //     sub: user.id,
+  //     email: user.email,
+  //   };
+  //   return {
+  //     access_token: this.jwtService.sign(payload),
+  //     user: {
+  //       id: user.id,
+  //       name: user.name,
+  //       email: user.email,
+  //       image: user.picture,
+  //     },
+  //   };
+  // }
+
+  // async login(loginData: LoginDto) {
+  //   const { email, password } = loginData;
+
+  //   const user = await this.userRepository.findOne({ where: { email } });
+
+  //   if (!user) {
+  //     throw new Error('User not found');
+  //   }
+
+  //   const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  //   if (!isPasswordValid) {
+  //     throw new Error('Invalid password');
+  //   }
+  //   const payload = {
+  //     sub: user.id,
+  //     email: user.email,
+  //   };
+  //   return {
+  //     access_token: this.jwtService.sign(payload),
+  //     user: {
+  //       id: user.id,
+  //       name: user.name,
+  //       email: user.email,
+  //       image: user.picture,
+  //     },
+  //   };
+  // }
 
   async google(googleLoginDto: GoogleLoginDto) {
     try {
+      console.log('Starting Google token verification...');
+
       const ticket = await this.googleClient.verifyIdToken({
         idToken: googleLoginDto.token,
         audience: process.env.GOOGLE_CLIENT_ID,
       });
+
+      console.log('Google token verified successfully');
 
       const payload = ticket.getPayload();
       if (!payload) {
@@ -98,6 +130,7 @@ export class AuthService {
       }
 
       const { sub: googleId, email, name, picture } = payload;
+      console.log('Extracted payload:', { googleId, email, name });
 
       let user = await this.userRepository.findOne({
         where: { email },
@@ -111,6 +144,7 @@ export class AuthService {
           picture,
         });
         await this.userRepository.save(user);
+        console.log('New user created:', user);
       } else {
         if (!user.googleId) {
           user.googleId = googleId;
@@ -122,15 +156,16 @@ export class AuthService {
           user.picture = picture;
         }
         await this.userRepository.save(user);
+        console.log('Existing user updated:', user);
       }
 
-      const jwtPayload = {
-        sub: user.id,
-        email: user.email,
-      };
+      console.log('Creating JWT...');
+      const jwtPayload = { email: user.email };
+      const accessToken = this.login(jwtPayload);
 
+      console.log('Google login completed successfully');
       return {
-        access_token: this.jwtService.sign(jwtPayload),
+        access_token: accessToken,
         user: {
           id: user.id,
           name: user.name,
@@ -139,8 +174,10 @@ export class AuthService {
         },
       };
     } catch (e) {
-      console.log(e);
-      throw new UnauthorizedException('Google authentication failed');
+      console.error('Google verification error:', e);
+      throw new UnauthorizedException(
+        'Google authentication failed: ' + e.message,
+      );
     }
   }
 }

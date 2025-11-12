@@ -22,8 +22,8 @@ export const Input = ({
   };
 
   return (
-    <>
-      <label className="mt-1 font-medium flex text-slate-300 items-center gap-2">
+    <div className="p-1 w-full">
+      <label className=" font-medium flex text-slate-300 items-center gap-2">
         {icon}
         {text}
       </label>
@@ -43,6 +43,6 @@ export const Input = ({
         } p-2.5 rounded-lg bg-gray-900 w-full border border-gray-600 transition-all duration-200 ease-in-out  focus-visible:ring-2 focus-visible:outline-none`}
         {...(required ? { required: true } : {})}
       />
-    </>
+    </div>
   );
 };
