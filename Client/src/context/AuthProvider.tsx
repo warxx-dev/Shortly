@@ -1,8 +1,23 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AuthContext, type User } from "./authContext";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/auth/me", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setUser(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching user:", error);
+        setUser(null);
+      });
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
@@ -81,6 +96,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
+    fetch("http://localhost:3000/auth/logout", {
+      method: "GET",
+      credentials: "include",
+    }).then(() => {
+      console.log("Logged out from backend");
+    });
+
     setUser(null);
   };
 

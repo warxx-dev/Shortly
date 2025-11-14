@@ -9,7 +9,7 @@ export const HeaderText = () => {
           <h1 className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent text-xl sm:text-3xl font-bold">
             Short.ly
           </h1>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-400 hidden sm:block">
             Turn your long links into short, shareable URLs
           </p>
         </div>

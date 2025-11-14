@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,12 +19,14 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  // Headers for Google OAuth
-  app.use((req, res, next) => {
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-    next();
-  });
+  app.use(cookieParser());
+
+  // // Headers for Google OAuth
+  // app.use((req, res, next) => {
+  //   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  //   res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  //   next();
+  // });
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();

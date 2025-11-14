@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import googleConfig from './config/google.config';
 import jwtConfig from './config/jwt.config';
 
@@ -17,9 +17,9 @@ import jwtConfig from './config/jwt.config';
     UserModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+      inject: [jwtConfig.KEY],
+      useFactory: (jwtConfiguration: ConfigType<typeof jwtConfig>) => ({
+        secret: jwtConfiguration.secret,
         signOptions: { expiresIn: '7d' },
       }),
     }),

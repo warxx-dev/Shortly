@@ -1,5 +1,9 @@
-import { IsOptional } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Link {
@@ -10,6 +14,11 @@ export class Link {
   originalLink: string;
 
   @Column({ unique: true, nullable: true })
-  @IsOptional()
-  code?: string;
+  code: string;
+
+  @Column()
+  clicks: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

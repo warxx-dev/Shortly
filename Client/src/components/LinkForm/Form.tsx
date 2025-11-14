@@ -51,7 +51,7 @@ export const Form = () => {
       exit={{ opacity: 0, transform: "translateY(20px)" }}
       transition={{ duration: 0.3 }}
       onSubmit={handleSubmit}
-      className="bg-gray-700/30 w-full max-w-2xl flex flex-col items-start p-8 rounded-2xl gap-2.5"
+      className="mx-2 bg-gray-700/30 w-full max-w-2xl flex flex-col items-start p-8 rounded-2xl gap-2.5"
     >
       <div className="flex items-center gap-2 pb-2.5">
         <LinkIcon className="text-emerald-400" />

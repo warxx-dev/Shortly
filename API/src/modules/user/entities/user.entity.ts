@@ -2,15 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+  @PrimaryColumn()
   @Column({ unique: true })
   email: string;
 
@@ -19,9 +17,6 @@ export class User {
 
   @Column({ nullable: true })
   name: string;
-
-  @Column({ nullable: true })
-  googleId: string;
 
   @Column({ nullable: true })
   picture: string;
