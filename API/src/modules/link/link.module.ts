@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { LinkController } from './link.controller';
 import { LinkService } from './link.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -6,7 +6,7 @@ import { Link } from './entities/link.entity';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Link]), UserModule],
+  imports: [TypeOrmModule.forFeature([Link]), forwardRef(() => UserModule)],
   controllers: [LinkController],
   providers: [LinkService],
   exports: [LinkService],
