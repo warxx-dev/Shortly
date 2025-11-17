@@ -1,7 +1,9 @@
+import { Link } from '../../link/entities/link.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -9,7 +11,6 @@ import {
 @Entity()
 export class User {
   @PrimaryColumn()
-  @Column({ unique: true })
   email: string;
 
   @Column({ nullable: true })
@@ -20,6 +21,9 @@ export class User {
 
   @Column({ nullable: true })
   picture: string;
+
+  @OneToMany(() => Link, (link) => link.user)
+  links: Link[];
 
   @CreateDateColumn()
   createdAt: Date;

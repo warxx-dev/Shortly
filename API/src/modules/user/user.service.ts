@@ -4,14 +4,17 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import bcrypt from 'node_modules/bcryptjs/umd/types';
+import * as bcrypt from 'bcryptjs';
 import { Result } from 'src/utils';
 import { UserError } from './types';
+import { LinkService } from '../link/link.service';
+import { Link } from '../link/entities/link.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly linkService: LinkService,
   ) {}
 
   async create({
@@ -61,6 +64,37 @@ export class UserService {
       }
 
       return Result.success(user);
+    } catch (error) {
+      return Result.failure(error as Error);
+    }
+  }
+
+  async addLinkToUser(
+    email: string,
+    code: string,
+  ): Promise<Result<Link, UserError>> {
+    try {
+      const user = await this.userRepository.findOne({ where: { email } });
+
+      if (!user) {
+        return Result.failure(`User with email ${email} not found`);
+      }
+
+      const linkResult = await this.linkService.getLinkByCode(code);
+
+      return linkResult.fold(
+        async (link) => {
+          user.links.push(link);
+          await this.userRepository.save(user);
+          return Result.success(link);
+        },
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async (error) => {
+          if (typeof error === 'string')
+            return Result.failure<Link, UserError>(error);
+          return Result.failure<Link, UserError>(error);
+        },
+      );
     } catch (error) {
       return Result.failure(error as Error);
     }

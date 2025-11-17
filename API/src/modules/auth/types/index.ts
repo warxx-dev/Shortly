@@ -5,4 +5,4 @@ export type AuthSuccessData = {
   user: User;
 };
 
-export type AuthError = string;
+export type AuthError = string | Error;

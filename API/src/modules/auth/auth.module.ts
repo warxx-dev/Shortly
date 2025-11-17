@@ -15,16 +15,16 @@ import jwtConfig from './config/jwt.config';
   imports: [
     TypeOrmModule.forFeature([User]),
     UserModule,
+    ConfigModule.forFeature(googleConfig),
+    ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule.forFeature(jwtConfig)],
       inject: [jwtConfig.KEY],
       useFactory: (jwtConfiguration: ConfigType<typeof jwtConfig>) => ({
         secret: jwtConfiguration.secret,
         signOptions: { expiresIn: '7d' },
       }),
     }),
-    ConfigModule.forFeature(googleConfig),
-    ConfigModule.forFeature(jwtConfig),
   ],
   providers: [AuthService, JwtStrategy, LocalStrategy],
   controllers: [AuthController],

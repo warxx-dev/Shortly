@@ -15,7 +15,6 @@ export class RedirectMiddleware implements NestMiddleware {
     ) {
       return next();
     }
-    console.log('Original path:', originalPath);
     const redirectUrl = `/r${originalPath}`;
 
     res.redirect(302, redirectUrl);

@@ -17,7 +17,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Result } from 'src/utils';
 import { AuthError, AuthSuccessData } from './types';
-import { Cookies } from './decorators/cookies.decorator';
+import { Cookies } from '../../decorators/cookies.decorator';
 
 @Controller('auth')
 export class AuthController {

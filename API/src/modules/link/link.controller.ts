@@ -92,8 +92,12 @@ export class LinkController {
 
   @Post()
   async create(@Body() body: CreateLinkDto): Promise<LinkData> {
-    const { originalLink, code } = body;
-    const result = await this.linkService.createLink({ originalLink, code });
+    const { originalLink, code, email } = body;
+    const result = await this.linkService.createLink({
+      originalLink,
+      code,
+      email,
+    });
     return result.fold(
       (link) => link,
       (error) => {

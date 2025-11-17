@@ -8,7 +8,7 @@ import { GoogleLoginDto } from './dto/googleLoginDto';
 import { OAuth2Client } from 'google-auth-library';
 import { AuthUser } from './interfaces/user.interface';
 import { RegisterDto } from './dto/registerDto';
-import bcrypt from 'node_modules/bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import { Result } from 'src/utils';
 import { AuthError, AuthSuccessData } from './types';
 
@@ -28,11 +28,12 @@ export class AuthService {
     email: string,
     pass: string,
   ): Promise<Partial<User> | null> {
-    const user = await this.userService.findOne(email);
-    if (user && user.password === pass) {
+    const result = await this.userService.findByEmail(email);
+
+    if (result.isSuccess && result.getData()?.password === pass) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return result;
+      const { password, ...restData } = result.getData()!;
+      return restData;
     }
     return null;
   }
@@ -60,52 +61,31 @@ export class AuthService {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const user = await this.userService.create({
+      const result = await this.userService.create({
         email: email,
         password: hashedPassword,
         name: name,
       });
 
-      const payload = {
-        sub: user.email,
-      };
-      return Result.success({
-        access_token: this.jwtService.sign(payload),
-        user,
-      });
+      return result.fold(
+        (user) => {
+          const payload = {
+            sub: user.email,
+          };
+
+          return Result.success({
+            access_token: this.jwtService.sign(payload),
+            user: user,
+          });
+        },
+        (error) => {
+          return Result.failure(error);
+        },
+      );
     } catch (error) {
-      return Result.failure(error);
+      return Result.failure(error as Error);
     }
   }
-
-  // async login(loginData: LoginDto) {
-  //   const { email, password } = loginData;
-
-  //   const user = await this.userRepository.findOne({ where: { email } });
-
-  //   if (!user) {
-  //     throw new Error('User not found');
-  //   }
-
-  //   const isPasswordValid = await bcrypt.compare(password, user.password);
-
-  //   if (!isPasswordValid) {
-  //     throw new Error('Invalid password');
-  //   }
-  //   const payload = {
-  //     sub: user.id,
-  //     email: user.email,
-  //   };
-  //   return {
-  //     access_token: this.jwtService.sign(payload),
-  //     user: {
-  //       id: user.id,
-  //       name: user.name,
-  //       email: user.email,
-  //       image: user.picture,
-  //     },
-  //   };
-  // }
 
   async google(
     googleLoginDto: GoogleLoginDto,
@@ -155,8 +135,11 @@ export class AuthService {
   async validateToken(token: string): Promise<Result<User, AuthError>> {
     try {
       const decoded: { sub: string } = this.jwtService.verify(token);
-      const user = await this.userService.findOne(decoded.sub);
-      return Result.success(user);
+      const result = await this.userService.findByEmail(decoded.sub);
+      return result.fold(
+        (user) => Result.success(user),
+        (error) => Result.failure(error),
+      );
     } catch (e) {
       return Result.failure(e);
     }

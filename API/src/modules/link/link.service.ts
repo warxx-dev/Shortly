@@ -5,11 +5,13 @@ import { Link } from './entities/link.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { generateCode, Result } from 'src/utils';
 import { LinkData, LinkError } from './types';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class LinkService {
   constructor(
     @InjectRepository(Link) private readonly linkRepository: Repository<Link>,
+    private readonly userService: UserService,
   ) {}
 
   async getLinks(): Promise<Result<Link[], LinkError>> {
@@ -53,6 +55,7 @@ export class LinkService {
   ): Promise<Result<LinkData, LinkError>> {
     try {
       let { originalLink, code } = linkData;
+      const { email } = linkData;
 
       if (!originalLink.startsWith('http'))
         originalLink = 'https://' + originalLink;
@@ -60,16 +63,43 @@ export class LinkService {
       let generatedCode: string;
       if (code.length === 0) {
         generatedCode = generateCode(10);
-        let existingLink = await this.getLinkByCode(generatedCode);
-        while (existingLink) {
+        let linkResult = await this.getLinkByCode(generatedCode);
+        while (linkResult.isFailure) {
           generatedCode = generateCode(10);
-          existingLink = await this.getLinkByCode(generatedCode);
+          linkResult = await this.getLinkByCode(generatedCode);
         }
         code = generatedCode;
       }
-
-      await this.linkRepository.save({ originalLink, code, clicks: 0 });
-      return Result.success({ originalLink, code });
+      const userResult = await this.userService.findByEmail(email);
+      return await userResult.fold(
+        async (user) => {
+          await this.linkRepository.save({ originalLink, code, user });
+          const addLinkToUserResult = await this.userService.addLinkToUser(
+            email,
+            code,
+          );
+          return addLinkToUserResult.fold(
+            (link) => {
+              return Result.success({
+                originalLink: link.originalLink,
+                code: link.code,
+              });
+            },
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            (error) => {
+              return Result.failure<LinkData, LinkError>(
+                "Error while adding link to user's links",
+              );
+            },
+          );
+        },
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async (error) => {
+          if (typeof error === 'string')
+            return Result.failure<LinkData, LinkError>(error);
+          return Result.failure<LinkData, LinkError>(error);
+        },
+      );
     } catch (error) {
       return Result.failure(error as Error);
     }
@@ -122,5 +152,10 @@ export class LinkService {
     } catch (error) {
       return Result.failure(error as Error);
     }
+  }
+
+  async incrementClicks(link: Link): Promise<void> {
+    link.clicks += 1;
+    await this.linkRepository.save(link);
   }
 }

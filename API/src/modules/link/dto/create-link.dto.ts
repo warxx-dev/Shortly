@@ -7,4 +7,7 @@ export class CreateLinkDto {
   @IsString()
   @IsOptional()
   readonly code: string;
+
+  @IsString()
+  readonly email: string;
 }
