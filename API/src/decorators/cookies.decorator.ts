@@ -6,6 +6,6 @@ export const Cookies = createParamDecorator(
     const request: Request = ctx.switchToHttp().getRequest();
 
     const cookies = request.cookies as Record<string, string | undefined>;
-    return cookies[data];
+    return cookies;
   },
 );

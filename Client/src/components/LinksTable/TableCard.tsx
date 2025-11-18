@@ -5,11 +5,7 @@ import { ModalBackground } from "../Modals/ModalBackground";
 import { AnimatePresence, motion } from "framer-motion";
 import { DeleteModal } from "../Modals/DeleteModal";
 import { useScrollLock } from "../../hooks/useScrollLock";
-
-interface TableCardProps {
-  originalLink: string;
-  shortLink: string;
-}
+import type { TableCardProps } from "../../types";
 
 export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
   const [editModal, setEditModal] = useState(false);
@@ -112,7 +108,10 @@ export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
         {editModal && (
           <>
             <ModalBackground onClick={() => setEditModal(false)} />
-            <EditModal shortCode={shortLink} originalLink={originalLink} />
+            <EditModal
+              shortCode={shortLink.split("/").pop()!}
+              originalLink={originalLink}
+            />
           </>
         )}
         {deleteModal && (

@@ -24,6 +24,7 @@ export const Header = () => {
               className="hover:bg-red-500/20! hover:ring-2 ring-red-600 hover:text-red-300 transition-all duration-200"
               icon={<LogOut size={16} />}
               onClick={logout}
+              hiddenText={true}
             />
             <Avatar img={user.image} />
           </div>

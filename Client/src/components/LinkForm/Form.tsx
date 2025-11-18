@@ -28,8 +28,10 @@ export const Form = () => {
         body: JSON.stringify({
           originalLink,
           code: customName,
+          email: user?.email,
         }),
       });
+      console.log(res);
 
       if (res.ok) {
         setShowAlert(true);
@@ -64,6 +66,7 @@ export const Form = () => {
         placeholder="https:/example.com/a-very-long-link"
         name="originalUrl"
         text="Original URL"
+        type="url"
       ></Input>
       <Input
         placeholder="my-custom-link"

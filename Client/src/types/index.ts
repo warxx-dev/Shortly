@@ -29,3 +29,8 @@ export interface buttonProps {
   gradient?: boolean;
   hiddenText?: boolean;
 }
+
+export interface TableCardProps {
+  originalLink: string;
+  shortLink: string;
+}

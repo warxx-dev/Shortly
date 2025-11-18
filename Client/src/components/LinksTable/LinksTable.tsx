@@ -5,17 +5,20 @@ import { BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 import empty_table from "./assets/empty_table.webp";
 import { Spinner } from "flowbite-react";
+import { useAuth } from "../../hooks/useAuth";
 
 export const LinksTable = () => {
   const { links, setLinks } = useContext(LinkContext);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetch("http://localhost:3000/link")
+    fetch(`http://localhost:3000/link?email=${user?.email}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+        console.log(response);
         return response.json();
       })
       .then((data) => {
@@ -25,7 +28,7 @@ export const LinksTable = () => {
       .catch((error) => {
         console.error("Error fetching links:", error);
       });
-  }, [setLinks]);
+  }, [setLinks, user?.email]);
 
   return (
     <motion.div

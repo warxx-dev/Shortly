@@ -24,6 +24,7 @@ export const Footer = () => {
                 />
               }
               gradient={false}
+              hiddenText={true}
             />
             <Button
               text="GitHub"
@@ -34,6 +35,7 @@ export const Footer = () => {
                 />
               }
               gradient={false}
+              hiddenText={true}
             />
           </div>
         </article>

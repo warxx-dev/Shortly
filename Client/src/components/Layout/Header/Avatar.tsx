@@ -3,7 +3,7 @@ import { User2 } from "lucide-react";
 export const Avatar = ({ img }: { img: string | undefined }) => {
   return (
     <div>
-      <div className="w-12 h-12 rounded-full hover:bg-slate-900 ring-2 ring-emerald-500 cursor-pointer hover:shadow-[0px_0px_30px_#00d492] transition-all duration-200 bg-slate-800  text-gray-600 font-bold">
+      <div className="flex items-center justify-center w-12 h-12 rounded-full hover:bg-slate-900 ring-2 ring-emerald-500 cursor-pointer hover:shadow-[0px_0px_30px_#00d492] transition-all duration-200 bg-slate-800  text-gray-600 font-bold">
         {img ? (
           <img
             src={img}

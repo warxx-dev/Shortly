@@ -20,17 +20,18 @@ export class LinkService {
     private readonly userService: UserService,
   ) {}
 
-  async getLinks(): Promise<Result<Link[], LinkError>> {
+  async getLinks(email: string): Promise<Result<Link[], LinkError>> {
     try {
-      const links = await this.linkRepository.find();
-      if (links.length === 0) return Result.failure('Links not found!');
+      const links = await this.linkRepository.find({
+        where: { user: { email } },
+      });
 
+      if (links.length === 0) return Result.failure('Links not found!');
       return Result.success(links);
     } catch (e) {
       return Result.failure(e as Error);
     }
   }
-
   async getLink(id: number): Promise<Result<Link, LinkError>> {
     try {
       const link = await this.linkRepository.findOne({ where: { id } });
@@ -70,7 +71,7 @@ export class LinkService {
       if (code.length === 0) {
         generatedCode = generateCode(10);
         let linkResult = await this.getLinkByCode(generatedCode);
-        while (linkResult.isFailure) {
+        while (linkResult.isSuccess) {
           generatedCode = generateCode(10);
           linkResult = await this.getLinkByCode(generatedCode);
         }
@@ -80,24 +81,26 @@ export class LinkService {
       return await userResult.fold(
         async (user) => {
           await this.linkRepository.save({ originalLink, code, user });
-          const addLinkToUserResult = await this.userService.addLinkToUser(
-            email,
-            code,
-          );
-          return addLinkToUserResult.fold(
-            (link) => {
-              return Result.success({
-                originalLink: link.originalLink,
-                code: link.code,
-              });
-            },
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            (error) => {
-              return Result.failure<LinkData, LinkError>(
-                "Error while adding link to user's links",
-              );
-            },
-          );
+          // const addLinkToUserResult = await this.userService.addLinkToUser(
+          //   email,
+          //   code,
+          // );
+          // return addLinkToUserResult.fold(
+          //   (link) => {
+          //     return Result.success({
+          //       originalLink: link.originalLink,
+          //       code: link.code,
+          //     });
+          //   },
+          //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          //   (error) => {
+          //     return Result.failure<LinkData, LinkError>(
+          //       "Error while adding link to user's links",
+          //     );
+          //   },
+          // );
+
+          return Result.success({ originalLink, code });
         },
         // eslint-disable-next-line @typescript-eslint/require-await
         async (error) => {

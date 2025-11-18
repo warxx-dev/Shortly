@@ -5,7 +5,6 @@ import { Request, Response, NextFunction } from 'express';
 export class RedirectMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const originalPath = req.originalUrl;
-
     if (
       originalPath === '/' ||
       originalPath.startsWith('/link') ||

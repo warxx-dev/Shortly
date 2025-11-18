@@ -16,7 +16,6 @@ import { type AuthRequest } from './interfaces/auth.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Result } from 'src/utils';
-import { AuthError, AuthSuccessData } from './types';
 import { Cookies } from '../../decorators/cookies.decorator';
 
 @Controller('auth')
@@ -34,19 +33,26 @@ export class AuthController {
     @Body() registerData: RegisterDto,
     @Res({ passthrough: true }) res: express.Response,
   ) {
-    const result: Result<AuthSuccessData, AuthError> =
-      await this.authService.register(registerData);
+    const result = await this.authService.register(registerData);
 
-    if (result.isFailure) return result;
-
-    res.cookie('access_token', result.getData()?.access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    return result;
+    return result.fold(
+      (data) => {
+        res.cookie('access_token', data.access_token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        return data;
+      },
+      (error) => {
+        throw new Error(
+          `Registration failed: ${
+            typeof error === 'string' ? error : error.message
+          }`,
+        );
+      },
+    );
   }
 
   @Post('google')
@@ -57,27 +63,45 @@ export class AuthController {
     try {
       const result = await this.authService.google(googleLoginData);
 
-      res.cookie('access_token', result.getData()?.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
-      return Result.success(result.getData()?.user);
+      return result.fold(
+        (data) => {
+          res.cookie('access_token', data.access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+          });
+          return data;
+        },
+        (error) => {
+          throw new Error(
+            `Google login failed: ${
+              typeof error === 'string' ? error : error.message
+            }`,
+          );
+        },
+      );
     } catch (error) {
       Result.failure(error);
     }
   }
 
   @Get('me')
-  async me(@Cookies() token: string | undefined): Promise<User | null> {
+  async me(
+    @Cookies() cookies: Record<string, string | undefined>,
+  ): Promise<User | null> {
+    const token = cookies['access_token'];
     if (!token) {
       return null;
     }
-
     const result = await this.authService.validateToken(token);
-    return result.getData();
+    return result.fold(
+      (user) => user,
+      (error) => {
+        console.error('Token validation error:', error);
+        return null;
+      },
+    );
   }
 
   @UseGuards(JwtAuthGuard)

@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { LinkService } from './link.service';
 import { CreateLinkDto, UpdateLinkDto } from './dto';
@@ -19,10 +20,14 @@ export class LinkController {
   constructor(private readonly linkService: LinkService) {}
 
   @Get()
-  async find(): Promise<Link[] | { error: string }> {
-    const result = await this.linkService.getLinks();
+  async find(@Query('email') email: string): Promise<Link[]> {
+    console.log('Received find links request with email:', email);
+    const result = await this.linkService.getLinks(email);
     return result.fold(
-      (links) => links,
+      (links) => {
+        console.log('Retrieved links:', links);
+        return links;
+      },
       (error) => {
         if (typeof error === 'string') {
           if (error.includes('not found')) {
@@ -92,6 +97,7 @@ export class LinkController {
 
   @Post()
   async create(@Body() body: CreateLinkDto): Promise<LinkData> {
+    console.log('Received create link request with body:', body);
     const { originalLink, code, email } = body;
     const result = await this.linkService.createLink({
       originalLink,
@@ -99,8 +105,12 @@ export class LinkController {
       email,
     });
     return result.fold(
-      (link) => link,
+      (link) => {
+        console.log('Link created successfully:', link);
+        return link;
+      },
       (error) => {
+        console.log('Error creating link:', error);
         if (typeof error === 'string') {
           if (error.includes('not found')) {
             throw new NotFoundException(error);
