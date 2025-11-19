@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { AlertContext } from "../../context/alertContext";
 
-export const Alert = () => {
+export const Toast = () => {
   const { showAlert, setShowAlert } = useContext(AlertContext);
 
   if (showAlert) {

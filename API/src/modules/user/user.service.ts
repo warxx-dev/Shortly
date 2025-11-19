@@ -4,7 +4,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
 import { Result } from 'src/utils';
 import { UserError } from './types';
 import { LinkService } from '../link/link.service';
@@ -31,11 +30,10 @@ export class UserService {
       if (existingUser)
         return Result.failure('User with this email already exists');
 
-      const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = this.userRepository.create({
         name: name,
         email: email,
-        password: hashedPassword,
+        password: password,
       });
 
       await this.userRepository.save(newUser);

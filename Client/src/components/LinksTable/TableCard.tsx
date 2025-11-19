@@ -7,7 +7,14 @@ import { DeleteModal } from "../Modals/DeleteModal";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import type { TableCardProps } from "../../types";
 
-export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
+export const TableCard = ({
+  originalLink,
+  shortLink,
+  clicks,
+  date,
+  code,
+  id,
+}: TableCardProps) => {
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -30,7 +37,7 @@ export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
     <div>
       <article className="relative flex flex-col justify-between rounded-xl border border-gray-700 hover:border-emerald-700 items-center gap-2 bg-gradient-to-br from-slate-800 to-slate-900 p-3 max-w ">
         <section className="flex justify-between w-full">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full max-w-64 sm:max-w-none">
               <a
                 href={shortLink}
@@ -57,7 +64,7 @@ export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
                   initial={{ opacity: 0, x: "-20px" }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: "-20px" }}
-                  className="ml-2 text-xs text-emerald-400"
+                  className="sm:ml-2 text-xs text-emerald-400"
                 >
                   Copied!
                 </motion.span>
@@ -96,11 +103,11 @@ export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
         <section className="flex items-center gap-4 text-xs text-slate-400 self-start">
           <div className="flex items-center gap-1">
             <BarChart3 size={12} />
-            <span>0 clicks</span>
+            <span>{clicks} clicks</span>
           </div>
           <div className="flex items-center gap-1">
             <Clock size={12} />
-            <span>fecha</span>
+            <span>{date}</span>
           </div>
         </section>
       </article>
@@ -109,15 +116,17 @@ export const TableCard = ({ originalLink, shortLink }: TableCardProps) => {
           <>
             <ModalBackground onClick={() => setEditModal(false)} />
             <EditModal
-              shortCode={shortLink.split("/").pop()!}
+              shortCode={code}
               originalLink={originalLink}
+              setEditModal={setEditModal}
+              id={id}
             />
           </>
         )}
         {deleteModal && (
           <>
             <ModalBackground onClick={() => setDeleteModal(false)} />
-            <DeleteModal setDeleteModal={setDeleteModal} />
+            <DeleteModal code={code} setDeleteModal={setDeleteModal} />
           </>
         )}
       </AnimatePresence>

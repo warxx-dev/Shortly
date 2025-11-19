@@ -8,7 +8,7 @@ export const Input = ({
   placeholder,
   required,
   icon,
-  value,
+  defaultValue,
 }: inputProps) => {
   const [validPassword, setValidPassword] = useState<boolean>(false);
   const [touched, setTouched] = useState<boolean>(false);
@@ -28,7 +28,7 @@ export const Input = ({
         {text}
       </label>
       <input
-        value={value}
+        defaultValue={defaultValue}
         autoComplete={type === "password" ? "current-password" : "off"}
         onChange={type === "password" ? handlePasswordChange : undefined}
         type={type || "text"}

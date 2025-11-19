@@ -7,10 +7,14 @@ import { User } from '../../user/entities/user.entity';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {
-    super();
+    super({
+      usernameField: 'email',
+      passwordField: 'password',
+    });
   }
 
   async validate(email: string, password: string): Promise<Partial<User>> {
+    console.log(`Validating user with email: ${email}`);
     if (password === '') {
       throw new UnauthorizedException('Password cannot be empty');
     }

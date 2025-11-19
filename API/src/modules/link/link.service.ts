@@ -69,10 +69,10 @@ export class LinkService {
 
       let generatedCode: string;
       if (code.length === 0) {
-        generatedCode = generateCode(10);
+        generatedCode = generateCode(5);
         let linkResult = await this.getLinkByCode(generatedCode);
         while (linkResult.isSuccess) {
-          generatedCode = generateCode(10);
+          generatedCode = generateCode(5);
           linkResult = await this.getLinkByCode(generatedCode);
         }
         code = generatedCode;
@@ -81,25 +81,6 @@ export class LinkService {
       return await userResult.fold(
         async (user) => {
           await this.linkRepository.save({ originalLink, code, user });
-          // const addLinkToUserResult = await this.userService.addLinkToUser(
-          //   email,
-          //   code,
-          // );
-          // return addLinkToUserResult.fold(
-          //   (link) => {
-          //     return Result.success({
-          //       originalLink: link.originalLink,
-          //       code: link.code,
-          //     });
-          //   },
-          //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          //   (error) => {
-          //     return Result.failure<LinkData, LinkError>(
-          //       "Error while adding link to user's links",
-          //     );
-          //   },
-          // );
-
           return Result.success({ originalLink, code });
         },
         // eslint-disable-next-line @typescript-eslint/require-await
@@ -143,21 +124,28 @@ export class LinkService {
     }
   }
 
-  async removeLink(id: number): Promise<Result<string, LinkError>> {
+  async removeLink(code: string): Promise<Result<string, LinkError>> {
+    console.log('Attempting to delete link with code:', code);
     try {
       const link = await this.linkRepository.findOne({
-        where: { id },
+        where: { code },
       });
+
+      console.log('Link found for deletion:', link);
 
       if (!link) throw new NotFoundException('Link not found');
 
-      await this.linkRepository.delete(link);
+      await this.linkRepository.delete({ code });
 
-      const deletedLink = await this.linkRepository.findOne({ where: { id } });
+      const deletedLink = await this.linkRepository.findOne({
+        where: { code },
+      });
+
+      console.log('Verifying deletion, link found:', deletedLink);
 
       if (!deletedLink) return Result.success('Link deleted successfully');
 
-      return Result.failure('Error ocurred while deleting link');
+      return Result.failure('Error occurred while deleting link');
     } catch (error) {
       return Result.failure(error as Error);
     }

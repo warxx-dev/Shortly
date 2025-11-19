@@ -29,17 +29,28 @@ export class AuthService {
     pass: string,
   ): Promise<Partial<User> | null> {
     const result = await this.userService.findByEmail(email);
-
-    if (result.isSuccess && result.getData()?.password === pass) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...restData } = result.getData()!;
-      return restData;
+    console.log(`Validating user: ${email}`); // --- IGNORE ---
+    console.log(`Password received: "${pass}"`); // --- IGNORE ---
+    if (result.isSuccess) {
+      const user = result.getData();
+      console.log(`User found:`, user); // --- IGNORE ---
+      if (user && user.password) {
+        console.log(`Stored hash: ${user.password}`); // --- IGNORE ---
+        const isPasswordValid = await bcrypt.compare(pass, user.password);
+        console.log(`Password valid: ${isPasswordValid}`); // --- IGNORE ---
+        if (isPasswordValid) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { password, ...restData } = user;
+          console.log(`User ${email} validated successfully`); // --- IGNORE ---
+          return restData;
+        }
+      }
     }
     return null;
   }
 
   login(user: AuthUser) {
-    const payload = { sub: user.email };
+    const payload = { email: user.email };
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -50,6 +61,8 @@ export class AuthService {
   ): Promise<Result<AuthSuccessData, AuthError>> {
     try {
       const { email, password, name } = resgisterData;
+      console.log('Register - Raw password received:', `"${password}"`); // --- DEBUG ---
+      console.log('Register - Password length:', password.length); // --- DEBUG ---
 
       const existingUser = await this.userRepository.findOne({
         where: { email },
@@ -60,6 +73,7 @@ export class AuthService {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
+      console.log('Register - Hashed password:', hashedPassword); // --- DEBUG ---
 
       const result = await this.userService.create({
         email: email,
@@ -70,7 +84,7 @@ export class AuthService {
       return result.fold(
         (user) => {
           const payload = {
-            sub: user.email,
+            email: user.email,
           };
 
           return Result.success({
@@ -134,8 +148,8 @@ export class AuthService {
 
   async validateToken(token: string): Promise<Result<User, AuthError>> {
     try {
-      const decoded: { sub: string } = this.jwtService.verify(token);
-      const result = await this.userService.findByEmail(decoded.sub);
+      const decoded: { email: string } = this.jwtService.verify(token);
+      const result = await this.userService.findByEmail(decoded.email);
       return result.fold(
         (user) => Result.success(user),
         (error) => Result.failure(error),

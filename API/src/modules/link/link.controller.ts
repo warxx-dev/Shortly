@@ -160,9 +160,9 @@ export class LinkController {
     );
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: number): Promise<string> {
-    const result = await this.linkService.removeLink(id);
+  @Delete(':code')
+  async remove(@Param('code') code: string): Promise<string> {
+    const result = await this.linkService.removeLink(code);
     return result.fold(
       (link) => link,
       (error) => {

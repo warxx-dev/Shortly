@@ -9,6 +9,16 @@ export const Button = ({
   gradient = true,
   hiddenText,
 }: buttonProps) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (onClick) {
+      // Verifica la aridad (número de parámetros) de la función
+      if (onClick.length === 0) {
+        (onClick as () => void)();
+      } else {
+        (onClick as (e: React.MouseEvent<HTMLButtonElement>) => void)(e);
+      }
+    }
+  };
   return (
     <button
       className={`group flex items-center font-bold justify-center ${
@@ -22,7 +32,9 @@ export const Button = ({
       } hover:cursor-pointer  transition-transform duration-150 rounded-lg ${className}`}
       onClick={(e) => {
         e.stopPropagation();
-        if (onClick) onClick();
+        if (onClick) {
+          handleClick(e);
+        }
       }}
     >
       {icon}

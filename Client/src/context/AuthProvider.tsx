@@ -31,9 +31,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!response.ok) {
         throw new Error("Invalid credentials");
       }
-      const data = await response.json();
-      console.log("Login response:", data);
-      setUser(data);
+
+      // El login exitoso guarda la cookie, ahora obtenemos el usuario
+      const userResponse = await fetch("http://localhost:3000/auth/me", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const userData = await userResponse.json();
+      setUser(userData);
     } catch (error) {
       console.error(error);
     }
@@ -53,8 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const data = await response.json();
-      console.log("Register response:", data);
-      setUser(data);
+      setUser(data.user);
     } catch (error) {
       console.error(error);
     }
@@ -62,14 +67,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const googleLogin = async (googleToken: string | undefined) => {
     try {
-      console.log("Sending Google token to backend...");
-
       if (!googleToken) {
-        console.error("Token is empty or undefined");
         throw new Error("Google token is empty");
       }
-
-      console.log("Token length:", googleToken.length);
 
       const response = await fetch("http://localhost:3000/auth/google", {
         method: "POST",
@@ -78,18 +78,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify({ token: googleToken }),
       });
 
-      console.log("Response status:", response.status);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error response:", errorText);
         throw new Error("Invalid credentials");
       }
 
-      console.log("Response received from backend");
       const data = await response.json();
-      console.log("Google login data:", data);
-      setUser(data);
+      setUser(data.user);
     } catch (error) {
       console.error("Google login error:", error);
     }

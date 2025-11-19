@@ -12,11 +12,10 @@ export class AppController {
   @Redirect()
   async redirectToOriginalLink(@Param('code') code: string) {
     const result = await this.linkService.getLinkByCode(code);
-
     return result.fold(
       async (link) => {
         await this.linkService.incrementClicks(link);
-        return { url: link.originalLink, statusCode: 301 };
+        return { url: link.originalLink, statusCode: 302 };
       },
       () => {
         return Promise.resolve({

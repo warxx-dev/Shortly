@@ -3,47 +3,40 @@ import { Input } from "../UI/Input";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { XIcon } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext, type FormEvent } from "react";
 import { ModalContext } from "../../context/modalContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
 
 export const LogInModal = () => {
-  const { loginModal, setLoginModal } = useContext(ModalContext);
-  // useEffect(() => {
-  //   if (loginModal) {
-  //     document.body.style.overflow = "hidden";
-  //   } else {
-  //     document.body.style.overflow = "unset";
-  //   }
+  const { setLoginModal } = useContext(ModalContext);
 
-  //   return () => {
-  //     document.body.style.overflow = "unset";
-  //   };
-  // }, [loginModal]);
-
-  const { login, googleLogin, register, user } = useAuth();
+  const { login, googleLogin, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
 
-  const handleSubmitLogIn = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitLogIn = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
     const email = formData.get("email")?.toString() ?? "";
     const password = formData.get("password")?.toString() ?? "";
-    login(email, password);
+    await login(email, password);
+    setLoginModal(false);
   };
 
-  const handleSubmitSignIn = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitSignIn = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const name = formData.get("name")?.toString() ?? "";
+    const name = formData.get("fullName")?.toString() ?? "";
     const email = formData.get("email")?.toString() ?? "";
     const password = formData.get("password")?.toString() ?? "";
-    register(name, email, password);
+    await register(name, email, password);
+    setLoginModal(false);
   };
 
   const handleClick = () => {
-    setIsLogin((v) => !v);
+    setIsLogin(!isLogin);
   };
 
   const handleGoogleSuccess = (credentialResponse: CredentialResponse) => {
@@ -65,7 +58,7 @@ export const LogInModal = () => {
       exit={{ opacity: 0, y: "-20px" }}
       transition={{ duration: 0.25 }}
       onClick={(e) => e.stopPropagation()}
-      className={`w-full max-w-xs flex-col gap-4 p-6 border border-gray-600 rounded-lg bg-slate-700/50 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 sm:max-w-md `}
+      className={`w-full max-w-xs flex-col gap-4 p-6 border border-gray-600 rounded-lg bg-gray-700/30 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 sm:max-w-md `}
     >
       <div className="flex justify-between">
         <h2 className="text-2xl">LogIn</h2>
@@ -94,6 +87,7 @@ export const LogInModal = () => {
                 text="Full Name"
                 name="fullName"
                 type="text"
+                required={true}
               />
             </motion.div>
           )}
@@ -103,12 +97,14 @@ export const LogInModal = () => {
           text="Email"
           name="email"
           type="email"
+          required={true}
         />
         <Input
           placeholder="••••••••"
           text="Password"
           name="password"
           type="password"
+          required={true}
         />
         <AnimatePresence mode="wait">
           {!isLogin && (
@@ -124,15 +120,15 @@ export const LogInModal = () => {
                 text="Repeat password"
                 name="password"
                 type="password"
+                required={true}
               />
             </motion.div>
           )}
         </AnimatePresence>
 
-        <a className="hover:text-emerald-400">Forgot your password?</a>
         <Button
           type="submit"
-          text={!isLogin ? "Sign up" : "Log in"}
+          text={isLogin ? "Log in" : "Sign up"}
           className="my-4"
         />
       </form>

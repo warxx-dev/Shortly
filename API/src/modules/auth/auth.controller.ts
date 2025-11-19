@@ -24,8 +24,18 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Req() req: AuthRequest) {
-    return this.authService.login(req.user);
+  login(
+    @Req() req: AuthRequest,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    const { access_token } = this.authService.login(req.user);
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return { access_token };
   }
 
   @Post('register')
@@ -34,7 +44,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: express.Response,
   ) {
     const result = await this.authService.register(registerData);
-
     return result.fold(
       (data) => {
         res.cookie('access_token', data.access_token, {
@@ -91,7 +100,7 @@ export class AuthController {
     @Cookies() cookies: Record<string, string | undefined>,
   ): Promise<User | null> {
     const token = cookies['access_token'];
-    if (!token) {
+    if (!token || typeof token !== 'string') {
       return null;
     }
     const result = await this.authService.validateToken(token);

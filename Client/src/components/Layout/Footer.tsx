@@ -15,28 +15,40 @@ export const Footer = () => {
             </div>
           </div>
           <div className="flex items-center gap-4 flex-col md:flex-row">
-            <Button
-              text="LinkedIn"
-              icon={
-                <FaLinkedin
-                  size={16}
-                  className="text-gray-400 group-hover:text-blue-500"
-                />
-              }
-              gradient={false}
-              hiddenText={true}
-            />
-            <Button
-              text="GitHub"
-              icon={
-                <FaGithub
-                  size={16}
-                  className="text-gray-400 group-hover:text-white"
-                />
-              }
-              gradient={false}
-              hiddenText={true}
-            />
+            <a
+              href="https://github.com/warxx-dev"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                text="GitHub"
+                icon={
+                  <FaGithub
+                    size={16}
+                    className="text-gray-400 group-hover:text-white"
+                  />
+                }
+                gradient={false}
+                hiddenText={true}
+              />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/walter-carrazana-03091335a/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                text="LinkedIn"
+                icon={
+                  <FaLinkedin
+                    size={16}
+                    className="text-gray-400 group-hover:text-blue-500"
+                  />
+                }
+                gradient={false}
+                hiddenText={true}
+              />
+            </a>
           </div>
         </article>
         <hr className="text-gray-600 w-full mt-6" />

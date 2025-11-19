@@ -1,4 +1,4 @@
-export function generateCode(longitud = 10): string {
+export function generateCode(longitud = 5): string {
   const caracteres =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let codigo = '';

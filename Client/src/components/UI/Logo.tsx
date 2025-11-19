@@ -1,9 +1,7 @@
-import { ScissorsIcon } from "lucide-react";
+import logo from "../../assets/Logo.png";
 
 export const Logo = () => {
   return (
-    <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl p-2 flex items-center justify-center">
-      <ScissorsIcon className="sm:size-9 size-5" />
-    </div>
+    <img src={logo} alt="Shortly Logo" className=" w-auto size-9 sm:size-12" />
   );
 };

@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { AlertContext } from "../../context/alertContext";
 import { Input } from "../UI/Input";
 import { Button } from "../UI/Button";
-import { LinkContext } from "../../context/linkContext";
 import { LinkIcon, ScissorsIcon } from "lucide-react";
 import { FormWarning } from "./FormWarning";
 import { motion } from "framer-motion";
@@ -10,7 +9,6 @@ import { useAuth } from "../../hooks/useAuth";
 
 export const Form = () => {
   const { setShowAlert } = useContext(AlertContext);
-  const { links, setLinks } = useContext(LinkContext);
   const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -31,14 +29,9 @@ export const Form = () => {
           email: user?.email,
         }),
       });
-      console.log(res);
 
       if (res.ok) {
         setShowAlert(true);
-        setLinks([
-          ...links,
-          { originalLink, code: `shortly.com/${customName}` },
-        ]);
         form.reset();
       }
     } catch (error) {
