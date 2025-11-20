@@ -1,13 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import cookieParser from 'cookie-parser';
+import cookieParser = require('cookie-parser');
+import express = require('express');
 import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
 
 const server = express();
 
-export const createNestServer = async (expressInstance: express.Express) => {
+export const createNestServer = async (expressInstance: any) => {
   const app = await NestFactory.create(
     AppModule,
     new ExpressAdapter(expressInstance),

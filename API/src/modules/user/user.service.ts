@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { Result } from '../../utils.js';
+import { Result } from '../../utils';
 import { UserError } from './types';
 import { LinkService } from '../link/link.service';
 import { Link } from '../link/entities/link.entity';
