@@ -53,7 +53,7 @@ export const LinksTable = () => {
                   key={link.code}
                   code={link.code}
                   originalLink={link.originalLink}
-                  shortLink={`http://localhost:3000/${link.code}`}
+                  shortLink={`https://kwik-it.vercel.app/${link.code}`}
                   clicks={link.clicks}
                   date={new Date(link.createdAt).toLocaleDateString()}
                 />
