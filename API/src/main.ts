@@ -5,12 +5,21 @@ import cookieParser = require('cookie-parser');
 import express = require('express');
 import { ExpressAdapter } from '@nestjs/platform-express';
 
-const server = express();
+const expressApp = express();
+let cachedApp: any;
 
-export const createNestServer = async (expressInstance: any) => {
+export const createNestServer = async () => {
+  if (cachedApp) {
+    return cachedApp;
+  }
+
   const app = await NestFactory.create(
     AppModule,
-    new ExpressAdapter(expressInstance),
+    new ExpressAdapter(expressApp),
+    { 
+      logger: ['error', 'warn'],
+      bodyParser: false, // Deshabilitar body parser automático
+    },
   );
 
   app.useGlobalPipes(
@@ -28,16 +37,20 @@ export const createNestServer = async (expressInstance: any) => {
 
   app.use(cookieParser());
 
-  return app.init();
+  await app.init();
+  cachedApp = app;
+  return app;
 };
 
-createNestServer(server)
+// Inicializar para serverless
+createNestServer()
   .then(() => console.log('Nest Ready'))
-  .catch((err) => console.error('Nest broken', err));
+  .catch((err) => console.error('Nest initialization error', err));
 
-// For local development
+// Para desarrollo local
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -45,17 +58,21 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  
   app.enableCors({
     origin: process.env.CLIENT_URL,
     credentials: true,
   });
 
   app.use(cookieParser());
-  await app.listen(process.env.PORT ?? 3000);
+  
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`🚀 Application running on port ${port}`);
 }
 
 if (require.main === module) {
   bootstrap();
 }
 
-export default server;
+export default expressApp;
