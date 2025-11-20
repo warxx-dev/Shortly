@@ -2,9 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser = require('cookie-parser');
+import express = require('express');
+import { ExpressAdapter } from '@nestjs/platform-express';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+const server = express();
+
+export const createNestServer = async (expressInstance: any) => {
+  const app = await NestFactory.create(
+    AppModule,
+    new ExpressAdapter(expressInstance),
+  );
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -21,10 +28,34 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
+  return app.init();
+};
 
-  console.log(`🚀 Application running on port ${port}`);
+createNestServer(server)
+  .then(() => console.log('Nest Ready'))
+  .catch((err) => console.error('Nest broken', err));
+
+// For local development
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+  app.enableCors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  });
+
+  app.use(cookieParser());
+  await app.listen(process.env.PORT ?? 3000);
 }
 
-bootstrap();
+if (require.main === module) {
+  bootstrap();
+}
+
+export default server;
