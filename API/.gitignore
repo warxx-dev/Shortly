@@ -1,5 +1,5 @@
 # compiled output
-# /dist  # Comentado para que Vercel pueda usar el build
+/dist
 /node_modules
 /build
 
