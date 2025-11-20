@@ -17,6 +17,10 @@ import { RedirectMiddleware } from './middleware/redirect.middleware';
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
+      ssl:
+        process.env.NODE_ENV === 'production'
+          ? { rejectUnauthorized: false }
+          : false,
     }),
     LinkModule,
     UserModule,
