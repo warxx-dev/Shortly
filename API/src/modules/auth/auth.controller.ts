@@ -15,7 +15,7 @@ import { User } from '../user/entities/user.entity';
 import { type AuthRequest } from './interfaces/auth.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { Result } from 'src/utils';
+import { Result } from '../../utils.js';
 import { Cookies } from '../../decorators/cookies.decorator';
 
 @Controller('auth')

@@ -8,7 +8,7 @@ import { CreateLinkDto, UpdateLinkDto } from './dto';
 import { Repository } from 'typeorm';
 import { Link } from './entities/link.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { generateCode, Result } from 'src/utils';
+import { generateCode, Result } from '../../utils.js';
 import { LinkData, LinkError } from './types';
 import { UserService } from '../user/user.service';
 

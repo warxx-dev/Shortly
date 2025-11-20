@@ -9,7 +9,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { AuthUser } from './interfaces/user.interface';
 import { RegisterDto } from './dto/registerDto';
 import * as bcrypt from 'bcryptjs';
-import { Result } from 'src/utils';
+import { Result } from '../../utils.js';
 import { AuthError, AuthSuccessData } from './types';
 
 @Injectable()
