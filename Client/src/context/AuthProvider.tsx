@@ -5,7 +5,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:3000/auth/me", {
+    fetch("https://kwik-it.vercel.app/auth/me", {
       method: "GET",
       credentials: "include",
     })
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch("http://localhost:3000/auth/login", {
+      const response = await fetch("https://kwik-it.vercel.app/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       // El login exitoso guarda la cookie, ahora obtenemos el usuario
-      const userResponse = await fetch("http://localhost:3000/auth/me", {
+      const userResponse = await fetch("https://kwik-it.vercel.app/auth/me", {
         method: "GET",
         credentials: "include",
       });
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      const response = await fetch("http://localhost:3000/auth/register", {
+      const response = await fetch("https://kwik-it.vercel.app/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error("Google token is empty");
       }
 
-      const response = await fetch("http://localhost:3000/auth/google", {
+      const response = await fetch("https://kwik-it.vercel.app/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    fetch("http://localhost:3000/auth/logout", {
+    fetch("https://kwik-it.vercel.app/auth/logout", {
       method: "GET",
       credentials: "include",
     }).then(() => {

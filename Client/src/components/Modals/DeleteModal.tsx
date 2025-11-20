@@ -18,7 +18,7 @@ export const DeleteModal = ({
     setDeleteModal(false);
   };
   const handleDelete = () => {
-    fetch(`http://localhost:3000/link/${code}`, {
+    fetch(`https://kwik-it.vercel.app/link/${code}`, {
       method: "DELETE",
     }).then((response) => {
       if (!response.ok) {

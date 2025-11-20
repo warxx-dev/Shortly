@@ -12,7 +12,7 @@ export const LinksTable = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    fetch(`http://localhost:3000/link?email=${user?.email}`)
+    fetch(`https://kwik-it.vercel.app/link?email=${user?.email}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

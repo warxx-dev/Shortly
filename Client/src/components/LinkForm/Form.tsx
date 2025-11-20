@@ -20,7 +20,7 @@ export const Form = () => {
     const customName = formData.get("customName")?.toString() ?? "";
 
     try {
-      const res = await fetch("http://localhost:3000/link", {
+      const res = await fetch("https://kwik-it.vercel.app/link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
