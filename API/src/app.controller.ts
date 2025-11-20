@@ -5,7 +5,7 @@ import { LinkService } from './modules/link/link.service';
 export class AppController {
   constructor(private readonly linkService: LinkService) {}
   @Get()
-  @Redirect('http://localhost:5173')
+  @Redirect(process.env.CLIENT_URL, 302)
   getApp(): void {}
 
   @Get('r/:code')
@@ -19,7 +19,7 @@ export class AppController {
       },
       () => {
         return Promise.resolve({
-          url: 'http://localhost:5173?error=link-not-found',
+          url: `${process.env.CLIENT_URL}?error=link-not-found`,
           statusCode: 302,
         });
       },
