@@ -17,7 +17,6 @@ const common_1 = require("@nestjs/common");
 const link_service_1 = require("./link.service");
 const dto_1 = require("./dto");
 let LinkController = class LinkController {
-    linkService;
     constructor(linkService) {
         this.linkService = linkService;
     }

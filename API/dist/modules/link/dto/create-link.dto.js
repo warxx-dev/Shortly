@@ -12,9 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateLinkDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateLinkDto {
-    originalLink;
-    code;
-    email;
 }
 exports.CreateLinkDto = CreateLinkDto;
 __decorate([

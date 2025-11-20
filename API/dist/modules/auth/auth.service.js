@@ -54,12 +54,8 @@ const typeorm_2 = require("typeorm");
 const jwt_1 = require("@nestjs/jwt");
 const google_auth_library_1 = require("google-auth-library");
 const bcrypt = __importStar(require("bcryptjs"));
-const utils_js_1 = require("../../utils.js");
+const utils_1 = require("../../utils");
 let AuthService = class AuthService {
-    jwtService;
-    userService;
-    userRepository;
-    googleClient;
     constructor(jwtService, userService, userRepository) {
         this.jwtService = jwtService;
         this.userService = userService;
@@ -101,7 +97,7 @@ let AuthService = class AuthService {
                 where: { email },
             });
             if (existingUser) {
-                return utils_js_1.Result.failure('User with this email already exists');
+                return utils_1.Result.failure('User with this email already exists');
             }
             const hashedPassword = await bcrypt.hash(password, 10);
             console.log('Register - Hashed password:', hashedPassword);
@@ -114,16 +110,16 @@ let AuthService = class AuthService {
                 const payload = {
                     email: user.email,
                 };
-                return utils_js_1.Result.success({
+                return utils_1.Result.success({
                     access_token: this.jwtService.sign(payload),
                     user: user,
                 });
             }, (error) => {
-                return utils_js_1.Result.failure(error);
+                return utils_1.Result.failure(error);
             });
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async google(googleLoginDto) {
@@ -134,7 +130,7 @@ let AuthService = class AuthService {
             });
             const payload = ticket.getPayload();
             if (!payload) {
-                return utils_js_1.Result.failure('Invalid Google token');
+                return utils_1.Result.failure('Invalid Google token');
             }
             const { email, name, picture } = payload;
             let user = await this.userRepository.findOne({
@@ -155,23 +151,23 @@ let AuthService = class AuthService {
             }
             const jwtPayload = { email: user.email };
             const accessToken = this.login(jwtPayload);
-            return utils_js_1.Result.success({
+            return utils_1.Result.success({
                 access_token: accessToken.access_token,
                 user,
             });
         }
         catch (e) {
-            return utils_js_1.Result.failure(e);
+            return utils_1.Result.failure(e);
         }
     }
     async validateToken(token) {
         try {
             const decoded = this.jwtService.verify(token);
             const result = await this.userService.findByEmail(decoded.email);
-            return result.fold((user) => utils_js_1.Result.success(user), (error) => utils_js_1.Result.failure(error));
+            return result.fold((user) => utils_1.Result.success(user), (error) => utils_1.Result.failure(error));
         }
         catch (e) {
-            return utils_js_1.Result.failure(e);
+            return utils_1.Result.failure(e);
         }
     }
 };

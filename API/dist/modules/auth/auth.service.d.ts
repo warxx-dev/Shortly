@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { GoogleLoginDto } from './dto/googleLoginDto';
 import { AuthUser } from './interfaces/user.interface';
 import { RegisterDto } from './dto/registerDto';
-import { Result } from '../../utils.js';
+import { Result } from '../../utils';
 import { AuthError, AuthSuccessData } from './types';
 export declare class AuthService {
     private readonly jwtService;

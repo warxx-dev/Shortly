@@ -2,7 +2,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { Result } from '../../utils.js';
+import { Result } from '../../utils';
 import { UserError } from './types';
 import { LinkService } from '../link/link.service';
 import { Link } from '../link/entities/link.entity';

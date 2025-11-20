@@ -12,10 +12,6 @@ function generateCode(longitud = 5) {
     return codigo;
 }
 class Result {
-    isSuccess;
-    isFailure;
-    data;
-    error;
     constructor(isSuccess, data, error) {
         this.isSuccess = isSuccess;
         this.isFailure = !isSuccess;

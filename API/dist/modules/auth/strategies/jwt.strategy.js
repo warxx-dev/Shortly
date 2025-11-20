@@ -21,7 +21,6 @@ const passport_1 = require("@nestjs/passport");
 const common_1 = require("@nestjs/common");
 const jwt_config_1 = __importDefault(require("../config/jwt.config"));
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
-    jwtConfiguration;
     constructor(jwtConfiguration) {
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromExtractors([

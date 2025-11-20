@@ -17,11 +17,9 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const user_entity_1 = require("./entities/user.entity");
 const typeorm_2 = require("typeorm");
-const utils_js_1 = require("../../utils.js");
+const utils_1 = require("../../utils");
 const link_service_1 = require("../link/link.service");
 let UserService = class UserService {
-    userRepository;
-    linkService;
     constructor(userRepository, linkService) {
         this.userRepository = userRepository;
         this.linkService = linkService;
@@ -32,61 +30,61 @@ let UserService = class UserService {
                 where: { email },
             });
             if (existingUser)
-                return utils_js_1.Result.failure('User with this email already exists');
+                return utils_1.Result.failure('User with this email already exists');
             const newUser = this.userRepository.create({
                 name: name,
                 email: email,
                 password: password,
             });
             await this.userRepository.save(newUser);
-            return utils_js_1.Result.success(newUser);
+            return utils_1.Result.success(newUser);
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async findAll() {
         try {
             const users = await this.userRepository.find();
             if (users.length === 0)
-                return utils_js_1.Result.failure('Users not found');
-            return utils_js_1.Result.success(users);
+                return utils_1.Result.failure('Users not found');
+            return utils_1.Result.success(users);
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async findByEmail(email) {
         try {
             const user = await this.userRepository.findOne({ where: { email } });
             if (!user) {
-                return utils_js_1.Result.failure(`User with email ${email} not found`);
+                return utils_1.Result.failure(`User with email ${email} not found`);
             }
-            return utils_js_1.Result.success(user);
+            return utils_1.Result.success(user);
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async addLinkToUser(email, code) {
         try {
             const user = await this.userRepository.findOne({ where: { email } });
             if (!user) {
-                return utils_js_1.Result.failure(`User with email ${email} not found`);
+                return utils_1.Result.failure(`User with email ${email} not found`);
             }
             const linkResult = await this.linkService.getLinkByCode(code);
             return linkResult.fold(async (link) => {
                 user.links.push(link);
                 await this.userRepository.save(user);
-                return utils_js_1.Result.success(link);
+                return utils_1.Result.success(link);
             }, async (error) => {
                 if (typeof error === 'string')
-                    return utils_js_1.Result.failure(error);
-                return utils_js_1.Result.failure(error);
+                    return utils_1.Result.failure(error);
+                return utils_1.Result.failure(error);
             });
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async update(email, updateData) {
@@ -95,31 +93,31 @@ let UserService = class UserService {
                 where: { email },
             });
             if (!userToUpdate) {
-                return utils_js_1.Result.failure(`User with email ${email} not found`);
+                return utils_1.Result.failure(`User with email ${email} not found`);
             }
             await this.userRepository.update(email, updateData);
             const userUpdated = await this.userRepository.findOne({
                 where: { email },
             });
             if (!userUpdated) {
-                return utils_js_1.Result.failure('Updated user could not be retrieved');
+                return utils_1.Result.failure('Updated user could not be retrieved');
             }
-            return utils_js_1.Result.success(userUpdated);
+            return utils_1.Result.success(userUpdated);
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async remove(email) {
         const user = await this.userRepository.findOne({ where: { email } });
         if (!user) {
-            return utils_js_1.Result.failure(`User with email ${email} not found`);
+            return utils_1.Result.failure(`User with email ${email} not found`);
         }
         await this.userRepository.delete(email);
         const deletedUser = await this.userRepository.findOne({ where: { email } });
         if (deletedUser)
-            return utils_js_1.Result.failure('Error ocurred while deleting user');
-        return utils_js_1.Result.success('User deleted successfully');
+            return utils_1.Result.failure('Error ocurred while deleting user');
+        return utils_1.Result.success('User deleted successfully');
     }
 };
 exports.UserService = UserService;

@@ -17,11 +17,9 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("typeorm");
 const link_entity_1 = require("./entities/link.entity");
 const typeorm_2 = require("@nestjs/typeorm");
-const utils_js_1 = require("../../utils.js");
+const utils_1 = require("../../utils");
 const user_service_1 = require("../user/user.service");
 let LinkService = class LinkService {
-    linkRepository;
-    userService;
     constructor(linkRepository, userService) {
         this.linkRepository = linkRepository;
         this.userService = userService;
@@ -32,35 +30,35 @@ let LinkService = class LinkService {
                 where: { user: { email } },
             });
             if (links.length === 0)
-                return utils_js_1.Result.failure('Links not found!');
-            return utils_js_1.Result.success(links);
+                return utils_1.Result.failure('Links not found!');
+            return utils_1.Result.success(links);
         }
         catch (e) {
-            return utils_js_1.Result.failure(e);
+            return utils_1.Result.failure(e);
         }
     }
     async getLink(id) {
         try {
             const link = await this.linkRepository.findOne({ where: { id } });
             if (!link) {
-                return utils_js_1.Result.failure(`Link #${id} not found`);
+                return utils_1.Result.failure(`Link #${id} not found`);
             }
-            return utils_js_1.Result.success(link);
+            return utils_1.Result.success(link);
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async getLinkByCode(code) {
         try {
             const link = await this.linkRepository.findOne({ where: { code } });
             if (!link) {
-                return utils_js_1.Result.failure(`The link with the code ${code} is not found!`);
+                return utils_1.Result.failure(`The link with the code ${code} is not found!`);
             }
-            return utils_js_1.Result.success(link);
+            return utils_1.Result.success(link);
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async createLink(linkData) {
@@ -71,10 +69,10 @@ let LinkService = class LinkService {
                 originalLink = 'https://' + originalLink;
             let generatedCode;
             if (code.length === 0) {
-                generatedCode = (0, utils_js_1.generateCode)(5);
+                generatedCode = (0, utils_1.generateCode)(5);
                 let linkResult = await this.getLinkByCode(generatedCode);
                 while (linkResult.isSuccess) {
-                    generatedCode = (0, utils_js_1.generateCode)(5);
+                    generatedCode = (0, utils_1.generateCode)(5);
                     linkResult = await this.getLinkByCode(generatedCode);
                 }
                 code = generatedCode;
@@ -82,37 +80,37 @@ let LinkService = class LinkService {
             const userResult = await this.userService.findByEmail(email);
             return await userResult.fold(async (user) => {
                 await this.linkRepository.save({ originalLink, code, user });
-                return utils_js_1.Result.success({ originalLink, code });
+                return utils_1.Result.success({ originalLink, code });
             }, async (error) => {
                 if (typeof error === 'string')
-                    return utils_js_1.Result.failure(error);
-                return utils_js_1.Result.failure(error);
+                    return utils_1.Result.failure(error);
+                return utils_1.Result.failure(error);
             });
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async updateLink(id, { code, originalLink }) {
         try {
             const linkToUpdate = await this.linkRepository.findOne({ where: { id } });
             if (!linkToUpdate)
-                return utils_js_1.Result.failure('Link not found');
+                return utils_1.Result.failure('Link not found');
             await this.linkRepository.update(id, {
                 originalLink,
                 code,
             });
             const linkUpdated = await this.linkRepository.findOne({ where: { id } });
             if (!linkUpdated) {
-                return utils_js_1.Result.failure('Updated link could not be retrieved');
+                return utils_1.Result.failure('Updated link could not be retrieved');
             }
-            return utils_js_1.Result.success({
+            return utils_1.Result.success({
                 originalLink: linkUpdated.originalLink,
                 code: linkUpdated.code,
             });
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async removeLink(code) {
@@ -130,11 +128,11 @@ let LinkService = class LinkService {
             });
             console.log('Verifying deletion, link found:', deletedLink);
             if (!deletedLink)
-                return utils_js_1.Result.success('Link deleted successfully');
-            return utils_js_1.Result.failure('Error occurred while deleting link');
+                return utils_1.Result.success('Link deleted successfully');
+            return utils_1.Result.failure('Error occurred while deleting link');
         }
         catch (error) {
-            return utils_js_1.Result.failure(error);
+            return utils_1.Result.failure(error);
         }
     }
     async incrementClicks(link) {

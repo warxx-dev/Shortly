@@ -53,10 +53,9 @@ const registerDto_1 = require("./dto/registerDto");
 const googleLoginDto_1 = require("./dto/googleLoginDto");
 const local_auth_guard_1 = require("./guards/local-auth.guard");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
-const utils_js_1 = require("../../utils.js");
+const utils_1 = require("../../utils");
 const cookies_decorator_1 = require("../../decorators/cookies.decorator");
 let AuthController = class AuthController {
-    authService;
     constructor(authService) {
         this.authService = authService;
     }
@@ -100,7 +99,7 @@ let AuthController = class AuthController {
             });
         }
         catch (error) {
-            utils_js_1.Result.failure(error);
+            utils_1.Result.failure(error);
         }
     }
     async me(cookies) {

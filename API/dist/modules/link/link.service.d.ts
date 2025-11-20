@@ -1,7 +1,7 @@
 import { CreateLinkDto, UpdateLinkDto } from './dto';
 import { Repository } from 'typeorm';
 import { Link } from './entities/link.entity';
-import { Result } from '../../utils.js';
+import { Result } from '../../utils';
 import { LinkData, LinkError } from './types';
 import { UserService } from '../user/user.service';
 export declare class LinkService {

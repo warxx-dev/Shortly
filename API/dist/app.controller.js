@@ -16,11 +16,13 @@ exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const link_service_1 = require("./modules/link/link.service");
 let AppController = class AppController {
-    linkService;
     constructor(linkService) {
         this.linkService = linkService;
     }
-    getApp() { }
+    getApp(res) {
+        const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+        res.redirect(302, clientUrl);
+    }
     async redirectToOriginalLink(code) {
         const result = await this.linkService.getLinkByCode(code);
         return result.fold(async (link) => {
@@ -37,9 +39,9 @@ let AppController = class AppController {
 exports.AppController = AppController;
 __decorate([
     (0, common_1.Get)(),
-    (0, common_1.Redirect)(process.env.CLIENT_URL, 302),
+    __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "getApp", null);
 __decorate([

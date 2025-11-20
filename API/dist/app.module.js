@@ -32,6 +32,9 @@ exports.AppModule = AppModule = __decorate([
                 url: process.env.DATABASE_URL,
                 autoLoadEntities: true,
                 synchronize: process.env.NODE_ENV !== 'production',
+                ssl: process.env.NODE_ENV === 'production'
+                    ? { rejectUnauthorized: false }
+                    : false,
             }),
             link_module_1.LinkModule,
             user_module_1.UserModule,

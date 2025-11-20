@@ -13,13 +13,6 @@ exports.Link = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../../user/entities/user.entity");
 let Link = class Link {
-    id;
-    originalLink;
-    code;
-    clicks;
-    user;
-    createdAt;
-    updatedAt;
 };
 exports.Link = Link;
 __decorate([

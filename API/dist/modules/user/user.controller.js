@@ -18,7 +18,6 @@ const user_service_1 = require("./user.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_dto_1 = require("./dto/update-user.dto");
 let UserController = class UserController {
-    userService;
     constructor(userService) {
         this.userService = userService;
     }
