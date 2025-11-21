@@ -12,7 +12,7 @@ export const LinksTable = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    fetch(`http://localhost:3000/link?email=${user?.email}`)
+    fetch(`https://kwik-it.vercel.app/link?email=${user?.email}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -53,7 +53,7 @@ export const LinksTable = () => {
                   key={link.code}
                   code={link.code}
                   originalLink={link.originalLink}
-                  shortLink={`http://localhost:3000/${link.code}`}
+                  shortLink={`https://kwik-it.vercel.app/${link.code}`}
                   clicks={link.clicks}
                   date={new Date(link.createdAt).toLocaleDateString()}
                 />

@@ -16,11 +16,15 @@ import { RedirectMiddleware } from './middleware/redirect.middleware';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: false,
       ssl:
         process.env.NODE_ENV === 'production'
           ? { rejectUnauthorized: false }
           : false,
+      extra: {
+        max: 10,
+        connectionTimeoutMillis: 10000,
+      },
     }),
     LinkModule,
     UserModule,
