@@ -17,7 +17,7 @@ export const Header = () => {
       <div className="max-w-6xl w-full flex relative justify-between items-center">
         <HeaderText />
         {user ? (
-          <Avatar img={user.image} />
+          <Avatar />
         ) : (
           <Button
             text={"Log In"}

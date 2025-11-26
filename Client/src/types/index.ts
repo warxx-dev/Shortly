@@ -39,6 +39,7 @@ export interface buttonProps {
   gradient?: boolean;
   hiddenText?: boolean;
   onMouseMove?: () => void;
+  disabled?: boolean;
 }
 
 export interface TableCardProps {

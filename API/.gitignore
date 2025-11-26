@@ -2,7 +2,7 @@
 # /dist  # Comentado para que Vercel pueda usar el build
 /node_modules
 /build
-
+/dist
 # Logs
 logs
 *.log

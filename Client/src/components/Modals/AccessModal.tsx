@@ -5,34 +5,86 @@ import { XIcon } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useState, useContext, type FormEvent } from "react";
 import { ModalContext } from "../../context/modalContext";
+import { AlertContext } from "../../context/alertContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
 
 export const LogInModal = () => {
   const { setLoginModal } = useContext(ModalContext);
+  const { showAlert } = useContext(AlertContext);
 
   const { login, googleLogin, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmitLogIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
+
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const email = formData.get("email")?.toString() ?? "";
+    const email = formData.get("email")?.toString().trim() ?? "";
     const password = formData.get("password")?.toString() ?? "";
-    await login(email, password);
-    setLoginModal(false);
+
+    const success = await login(email, password);
+
+    setIsLoading(false);
+
+    if (success) {
+      setLoginModal(false);
+    }
   };
 
   const handleSubmitSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const name = formData.get("fullName")?.toString() ?? "";
-    const email = formData.get("email")?.toString() ?? "";
+
+    const name = formData.get("fullName")?.toString().trim() ?? "";
+    const email = formData.get("email")?.toString().trim() ?? "";
     const password = formData.get("password")?.toString() ?? "";
-    await register(name, email, password);
-    setLoginModal(false);
+    const repeatPassword = formData.get("repeatPassword")?.toString() ?? "";
+
+    // Validar nombre
+    if (name.length < 2) {
+      showAlert({
+        type: "error",
+        title: "Invalid Name",
+        message: "Name must be at least 2 characters",
+      });
+      return;
+    }
+
+    // Validar contraseñas coincidan
+    if (password !== repeatPassword) {
+      showAlert({
+        type: "error",
+        title: "Passwords Don't Match",
+        message: "Please make sure your passwords match",
+      });
+      return;
+    }
+
+    // Validar formato de contraseña
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!#%*?&])[A-Za-z\d@$!#%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      showAlert({
+        type: "error",
+        title: "Weak Password",
+        message:
+          "Password must contain uppercase, lowercase, number and special character",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const success = await register(name, email, password);
+    setIsLoading(false);
+
+    if (success) {
+      setLoginModal(false);
+    }
   };
 
   const handleClick = () => {
@@ -118,7 +170,7 @@ export const LogInModal = () => {
               <Input
                 placeholder="••••••••"
                 text="Repeat password"
-                name="password"
+                name="repeatPassword"
                 type="password"
                 required={true}
               />
@@ -128,8 +180,9 @@ export const LogInModal = () => {
 
         <Button
           type="submit"
-          text={isLogin ? "Log in" : "Sign up"}
+          text={isLoading ? "Loading..." : isLogin ? "Log in" : "Sign up"}
           className="my-4"
+          disabled={isLoading}
         />
       </form>
       <p>
@@ -150,7 +203,6 @@ export const LogInModal = () => {
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={handleGoogleError}
-          useOneTap
           theme="filled_black"
           size="large"
           text="signin_with"

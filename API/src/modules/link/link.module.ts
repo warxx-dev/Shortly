@@ -4,9 +4,14 @@ import { LinkService } from './link.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Link } from './entities/link.entity';
 import { UserModule } from '../user/user.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Link]), forwardRef(() => UserModule)],
+  imports: [
+    TypeOrmModule.forFeature([Link]),
+    forwardRef(() => UserModule),
+    ScheduleModule.forRoot(),
+  ],
   controllers: [LinkController],
   providers: [LinkService],
   exports: [LinkService],

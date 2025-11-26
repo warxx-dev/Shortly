@@ -6,6 +6,8 @@ import { createPortal } from "react-dom";
 import type { EditModalProps } from "../../types";
 import { useContext } from "react";
 import { LinkContext } from "../../context/linkContext";
+import { AlertContext } from "../../context/alertContext";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const EditModal = ({
   shortCode,
@@ -14,6 +16,7 @@ export const EditModal = ({
   id,
 }: EditModalProps) => {
   const { links, setLinks } = useContext(LinkContext);
+  const { showAlert } = useContext(AlertContext);
   const handleClose = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setEditModal(false);
@@ -27,7 +30,7 @@ export const EditModal = ({
     const updatedOriginalLink = formData.get("originalLink")?.toString() ?? "";
 
     try {
-      const res = await fetch(`https://kwik-it.vercel.app/link/${id}`, {
+      const res = await fetch(`${apiUrl}/link/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -37,6 +40,11 @@ export const EditModal = ({
       });
 
       if (res.ok) {
+        showAlert({
+          type: "success",
+          title: "Link Updated",
+          message: "The link has been successfully updated.",
+        });
         setEditModal(false);
         setLinks(
           links.map((link) =>

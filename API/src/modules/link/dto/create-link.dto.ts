@@ -9,5 +9,6 @@ export class CreateLinkDto {
   readonly code: string;
 
   @IsString()
+  @IsOptional()
   readonly email: string;
 }

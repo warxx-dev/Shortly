@@ -5,12 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateLinkDto, UpdateLinkDto } from './dto';
-import { Repository } from 'typeorm';
+import { Repository, LessThan, IsNull } from 'typeorm';
 import { Link } from './entities/link.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { generateCode, Result } from '../../utils';
 import { LinkData, LinkError } from './types';
 import { UserService } from '../user/user.service';
+import { Cron } from '@nestjs/schedule/dist/decorators/cron.decorator';
+import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum';
 
 @Injectable()
 export class LinkService {
@@ -20,13 +22,22 @@ export class LinkService {
     private readonly userService: UserService,
   ) {}
 
+  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  async cleanExpiredAnonymousLinks() {
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+    await this.linkRepository.delete({
+      user: IsNull(),
+      createdAt: LessThan(oneDayAgo),
+    });
+  }
+
   async getLinks(email: string): Promise<Result<Link[], LinkError>> {
     try {
       const links = await this.linkRepository.find({
         where: { user: { email } },
       });
-
-      if (links.length === 0) return Result.failure('Links not found!');
       return Result.success(links);
     } catch (e) {
       return Result.failure(e as Error);
@@ -77,19 +88,24 @@ export class LinkService {
         }
         code = generatedCode;
       }
-      const userResult = await this.userService.findByEmail(email);
-      return await userResult.fold(
-        async (user) => {
-          await this.linkRepository.save({ originalLink, code, user });
-          return Result.success({ originalLink, code });
-        },
-        // eslint-disable-next-line @typescript-eslint/require-await
-        async (error) => {
-          if (typeof error === 'string')
+      if (email) {
+        const userResult = await this.userService.findByEmail(email);
+        return await userResult.fold(
+          async (user) => {
+            await this.linkRepository.save({ originalLink, code, user });
+            return Result.success({ originalLink, code });
+          },
+          // eslint-disable-next-line @typescript-eslint/require-await
+          async (error) => {
+            if (typeof error === 'string')
+              return Result.failure<LinkData, LinkError>(error);
             return Result.failure<LinkData, LinkError>(error);
-          return Result.failure<LinkData, LinkError>(error);
-        },
-      );
+          },
+        );
+      } else {
+        await this.linkRepository.save({ originalLink, code });
+        return Result.success({ originalLink, code });
+      }
     } catch (error) {
       return Result.failure(error as Error);
     }

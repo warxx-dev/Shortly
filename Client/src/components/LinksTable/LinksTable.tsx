@@ -3,19 +3,29 @@ import { LinkContext } from "../../context/linkContext";
 import { useContext, useEffect, useState } from "react";
 import { BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
-import empty_table from "./assets/empty_table.webp";
 import { useAuth } from "../../hooks/useAuth";
+import { AlertContext } from "../../context/alertContext";
+import { EmptyTable } from "./EmptyTable";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const LinksTable = () => {
   const { links, setLinks } = useContext(LinkContext);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { showAlert } = useContext(AlertContext);
 
   useEffect(() => {
-    fetch(`https://kwik-it.vercel.app/link?email=${user?.email}`)
+    fetch(`${apiUrl}/link?email=${user?.email}`)
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          response.json().then((data) =>
+            showAlert({
+              type: "info",
+              title: "Info",
+              message: (data.message as string) || "Failed to fetch links",
+            })
+          );
+          return [];
         }
         return response.json();
       })
@@ -24,10 +34,13 @@ export const LinksTable = () => {
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching links:", error);
+        showAlert({
+          type: "error",
+          title: "Error",
+          message: error.message || "Failed to fetch links",
+        });
       });
   }, [setLinks, user?.email]);
-  console.log(links);
 
   return (
     <motion.div
@@ -38,7 +51,10 @@ export const LinksTable = () => {
       className="text-center flex flex-col justify-center rounded-lg p-4 max-w-2xl w-full"
     >
       {isLoading ? (
-        <div className="text-slate-400">Loading...</div>
+        <div className=" p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
+          <p className="text-slate-400 mt-4">Loading your links...</p>
+        </div>
       ) : links.length != 0 ? (
         <>
           <h2 className="text-2xl font-semibold pb-2 flex items-center gap-2">
@@ -53,7 +69,7 @@ export const LinksTable = () => {
                   key={link.code}
                   code={link.code}
                   originalLink={link.originalLink}
-                  shortLink={`https://kwik-it.vercel.app/${link.code}`}
+                  shortLink={`${apiUrl}/${link.code}`}
                   clicks={link.clicks}
                   date={new Date(link.createdAt).toLocaleDateString()}
                 />
@@ -62,7 +78,7 @@ export const LinksTable = () => {
           </section>
         </>
       ) : (
-        <img src={empty_table} width={400} />
+        <EmptyTable />
       )}
     </motion.div>
   );

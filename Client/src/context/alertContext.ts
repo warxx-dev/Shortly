@@ -1,11 +1,21 @@
 import { createContext } from "react";
 
+export interface Alert {
+  type: "success" | "error" | "info";
+  title: string;
+  message: string;
+}
+
 interface AlertContextType {
-  showAlert: boolean;
-  setShowAlert: (value: boolean) => void;
+  alert: Alert | null;
+  showAlert: (alert: Alert) => void;
+  hideAlert: () => void;
+  isVisible: boolean;
 }
 
 export const AlertContext = createContext<AlertContextType>({
-  showAlert: false,
-  setShowAlert: () => {},
+  alert: null,
+  showAlert: () => {},
+  hideAlert: () => {},
+  isVisible: false,
 });

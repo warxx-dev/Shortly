@@ -8,6 +8,8 @@ export const Button = ({
   onClick,
   gradient = true,
   hiddenText,
+  disabled = false,
+  type,
 }: buttonProps) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (onClick) {
@@ -21,6 +23,8 @@ export const Button = ({
   };
   return (
     <button
+      type={type}
+      disabled={disabled}
       className={`group flex items-center font-bold justify-center ${
         icon && text ? "gap-2.5" : ""
       } max-h-10 ${
@@ -29,10 +33,12 @@ export const Button = ({
           : "bg-slate-800 hover:bg-slate-700"
       }  py-2 px-4 border-gray-600 ${
         border && "border"
-      } hover:cursor-pointer  transition-transform duration-150 rounded-lg ${className}`}
+      } hover:cursor-pointer  transition-transform duration-150 rounded-lg ${className} ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
       onClick={(e) => {
         e.stopPropagation();
-        if (onClick) {
+        if (onClick && !disabled) {
           handleClick(e);
         }
       }}

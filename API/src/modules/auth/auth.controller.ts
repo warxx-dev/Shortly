@@ -6,6 +6,8 @@ import {
   UseGuards,
   Req,
   Get,
+  UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import * as express from 'express';
 import { AuthService } from './auth.service';
@@ -15,7 +17,6 @@ import { User } from '../user/entities/user.entity';
 import { type AuthRequest } from './interfaces/auth.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { Result } from '../../utils';
 import { Cookies } from '../../decorators/cookies.decorator';
 
 @Controller('auth')
@@ -55,10 +56,8 @@ export class AuthController {
         return data;
       },
       (error) => {
-        throw new Error(
-          `Registration failed: ${
-            typeof error === 'string' ? error : error.message
-          }`,
+        throw new BadRequestException(
+          typeof error === 'string' ? error : error.message,
         );
       },
     );
@@ -69,30 +68,24 @@ export class AuthController {
     @Body() googleLoginData: GoogleLoginDto,
     @Res({ passthrough: true }) res: express.Response,
   ) {
-    try {
-      const result = await this.authService.google(googleLoginData);
+    const result = await this.authService.google(googleLoginData);
 
-      return result.fold(
-        (data) => {
-          res.cookie('access_token', data.access_token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-          });
-          return data;
-        },
-        (error) => {
-          throw new Error(
-            `Google login failed: ${
-              typeof error === 'string' ? error : error.message
-            }`,
-          );
-        },
-      );
-    } catch (error) {
-      Result.failure(error);
-    }
+    return result.fold(
+      (data) => {
+        res.cookie('access_token', data.access_token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        return data;
+      },
+      (error) => {
+        throw new UnauthorizedException(
+          typeof error === 'string' ? error : error.message,
+        );
+      },
+    );
   }
 
   @Get('me')
@@ -107,8 +100,9 @@ export class AuthController {
     return result.fold(
       (user) => user,
       (error) => {
-        console.error('Token validation error:', error);
-        return null;
+        throw new UnauthorizedException(
+          typeof error === 'string' ? error : error.message,
+        );
       },
     );
   }
