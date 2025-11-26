@@ -4,13 +4,13 @@ export interface User {
   id: number;
   email: string;
   name?: string;
-  image?: string;
+  picture?: string;
 }
 
 export interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, password: string) => Promise<boolean>;
   googleLogin: (token: string | undefined) => Promise<void>;
   logout: () => void;
 }

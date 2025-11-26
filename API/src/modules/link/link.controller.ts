@@ -21,11 +21,9 @@ export class LinkController {
 
   @Get()
   async find(@Query('email') email: string): Promise<Link[]> {
-    console.log('Received find links request with email:', email);
     const result = await this.linkService.getLinks(email);
     return result.fold(
       (links) => {
-        console.log('Retrieved links:', links);
         return links;
       },
       (error) => {
@@ -97,7 +95,6 @@ export class LinkController {
 
   @Post()
   async create(@Body() body: CreateLinkDto): Promise<LinkData> {
-    console.log('Received create link request with body:', body);
     const { originalLink, code, email } = body;
     const result = await this.linkService.createLink({
       originalLink,
@@ -106,11 +103,9 @@ export class LinkController {
     });
     return result.fold(
       (link) => {
-        console.log('Link created successfully:', link);
         return link;
       },
       (error) => {
-        console.log('Error creating link:', error);
         if (typeof error === 'string') {
           if (error.includes('not found')) {
             throw new NotFoundException(error);

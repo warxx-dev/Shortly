@@ -1,11 +1,14 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useContext, useEffect, useState, type ReactNode } from "react";
 import { AuthContext, type User } from "./authContext";
+import { AlertContext } from "./alertContext";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const { showAlert } = useContext(AlertContext);
 
   useEffect(() => {
-    fetch("https://kwik-it.vercel.app/auth/me", {
+    fetch(`${apiUrl}/auth/me`, {
       method: "GET",
       credentials: "include",
     })
@@ -13,15 +16,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .then((data) => {
         setUser(data);
       })
-      .catch((error) => {
-        console.error("Error fetching user:", error);
+      .catch(() => {
         setUser(null);
       });
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch("https://kwik-it.vercel.app/auth/login", {
+      const response = await fetch(`${apiUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -29,25 +31,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Invalid credentials");
+        const error = await response.json();
+        showAlert({
+          type: 'error',
+          title: 'Login Failed',
+          message: error.message || 'Invalid credentials'
+        });
+        return false;
       }
 
       // El login exitoso guarda la cookie, ahora obtenemos el usuario
-      const userResponse = await fetch("https://kwik-it.vercel.app/auth/me", {
+      const userResponse = await fetch(`${apiUrl}/auth/me`, {
         method: "GET",
         credentials: "include",
       });
 
       const userData = await userResponse.json();
       setUser(userData);
-    } catch (error) {
-      console.error(error);
+      showAlert({
+        type: 'success',
+        title: 'Welcome back!',
+        message: 'You have successfully logged in.'
+      });
+      return true;
+    } catch {
+      showAlert({
+        type: 'error',
+        title: 'Connection Error',
+        message: 'Could not connect to the server'
+      });
+      return false;
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch("https://kwik-it.vercel.app/auth/register", {
+      const response = await fetch(`${apiUrl}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -55,23 +74,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Invalid credentials");
+        const error = await response.json();
+        showAlert({
+          type: 'error',
+          title: 'Registration Failed',
+          message: error.message || 'Could not create account'
+        });
+        return false;
       }
 
       const data = await response.json();
       setUser(data.user);
-    } catch (error) {
-      console.error(error);
+      showAlert({
+        type: 'success',
+        title: 'Account Created!',
+        message: 'Your account has been successfully created.'
+      });
+      return true;
+    } catch {
+      showAlert({
+        type: 'error',
+        title: 'Connection Error',
+        message: 'Could not connect to the server'
+      });
+      return false;
     }
   };
 
   const googleLogin = async (googleToken: string | undefined) => {
     try {
       if (!googleToken) {
-        throw new Error("Google token is empty");
+        showAlert({
+          type: 'error',
+          title: 'Google Login Error',
+          message: 'Google authentication token is missing'
+        });
+        return;
       }
 
-      const response = await fetch("https://kwik-it.vercel.app/auth/google", {
+      const response = await fetch(`${apiUrl}/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -79,18 +120,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Invalid credentials");
+        const error = await response.json();
+        showAlert({
+          type: 'error',
+          title: 'Google Login Failed',
+          message: error.message || 'Could not authenticate with Google'
+        });
+        return;
       }
 
       const data = await response.json();
       setUser(data.user);
-    } catch (error) {
-      console.error("Google login error:", error);
+      showAlert({
+        type: 'success',
+        title: 'Welcome!',
+        message: 'Successfully logged in with Google.'
+      });
+    } catch {
+      showAlert({
+        type: 'error',
+        title: 'Connection Error',
+        message: 'Could not connect to the server'
+      });
     }
   };
 
   const logout = () => {
-    fetch("https://kwik-it.vercel.app/auth/logout", {
+    fetch(`${apiUrl}/auth/logout`, {
       method: "GET",
       credentials: "include",
     }).then(() => {

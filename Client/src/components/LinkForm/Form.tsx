@@ -6,9 +6,10 @@ import { LinkIcon, ScissorsIcon } from "lucide-react";
 import { FormWarning } from "./FormWarning";
 import { motion } from "framer-motion";
 import { useAuth } from "../../hooks/useAuth";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const Form = () => {
-  const { setShowAlert } = useContext(AlertContext);
+  const { showAlert } = useContext(AlertContext);
   const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -20,7 +21,7 @@ export const Form = () => {
     const customName = formData.get("customName")?.toString() ?? "";
 
     try {
-      const res = await fetch("https://kwik-it.vercel.app/link", {
+      const res = await fetch(`${apiUrl}/link`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -31,11 +32,28 @@ export const Form = () => {
       });
 
       if (res.ok) {
-        setShowAlert(true);
+        showAlert({
+          type: "success",
+          title: "Link Created",
+          message: "Your shortened link has been created successfully.",
+        });
+        form.reset();
+      } else {
+        const errorData = await res.json();
+        showAlert({
+          type: "error",
+          title: "Error Creating Link",
+          message: errorData.message || "There was an error creating the link.",
+        });
         form.reset();
       }
     } catch (error) {
-      console.error("Error:", error);
+      showAlert({
+        type: "error",
+        title: "Error Creating Link",
+        message:
+          (error as Error).message || "There was an error creating the link.",
+      });
     }
   };
 
@@ -62,7 +80,7 @@ export const Form = () => {
         type="url"
       ></Input>
       <Input
-        placeholder="my-custom-link"
+        placeholder="my-custom-code"
         name="customName"
         text="Custom name (optional)"
       ></Input>

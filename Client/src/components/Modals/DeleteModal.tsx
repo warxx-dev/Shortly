@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useContext, type Dispatch, type SetStateAction } from "react";
 import { LinkContext } from "../../context/linkContext";
+import { AlertContext } from "../../context/alertContext";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const DeleteModal = ({
   setDeleteModal,
@@ -13,19 +15,26 @@ export const DeleteModal = ({
   code: string;
 }) => {
   const { links, setLinks } = useContext(LinkContext);
+  const { showAlert } = useContext(AlertContext);
 
   const handleClose = () => {
     setDeleteModal(false);
   };
   const handleDelete = () => {
-    fetch(`https://kwik-it.vercel.app/link/${code}`, {
+    fetch(`${apiUrl}/link/${code}`, {
       method: "DELETE",
     }).then((response) => {
       if (!response.ok) {
         console.error("Error deleting link");
       }
       setLinks(links.filter((link) => link.code !== code));
+      showAlert({
+        type: "success",
+        title: "Link Deleted",
+        message: "The link has been successfully deleted.",
+      });
     });
+
     setDeleteModal(false);
   };
   return createPortal(

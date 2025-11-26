@@ -17,8 +17,15 @@ export const Input = ({
     const password = e.target.value;
     setTouched(password.length > 0);
     const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    setValidPassword(passwordRegex.test(password));
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!#%*?&])[A-Za-z\d@$!#%*?&]{8,}$/;
+    if (name === "repeatPassword") {
+      const mainPassword = document.querySelector(
+        'input[name="password"]'
+      ) as HTMLInputElement | null;
+      setValidPassword(mainPassword?.value === password);
+    } else {
+      setValidPassword(passwordRegex.test(password));
+    }
   };
 
   return (
